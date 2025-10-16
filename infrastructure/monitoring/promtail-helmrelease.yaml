@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: promtail
+  namespace: flux-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: promtail
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  targetNamespace: monitoring
+  values:
+    config:
+      clients:
+        - url: http://monitoring-loki-gateway.monitoring.svc.cluster.local:80/loki/api/v1/push
+    persistence:
+      enabled: true
+      size: 1Gi
