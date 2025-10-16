@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dns-cronjob
+  namespace: dns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dns-cronjob
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dns-cronjob
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dns-cronjob
+subjects:
+- kind: ServiceAccount
+  name: dns-cronjob
+  namespace: dns
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dns-script
+  namespace: dns
+data:
+  dns.sh: |
+    #!/bin/sh
+    set -euo pipefail
+
+    printf "====================================================\n"
+    printf "  STARTING DNS SYNC @ $(date -u)\n"
+    printf "====================================================\n\n"
+
+    NODE_IPS=$(kubectl get nodes -o json | jq -r '.items[] | .metadata.annotations."dns.fraguinha.com/external-ip" // empty' | sort -u)
+    ACTIVE_INGRESS_DOMAINS=$(kubectl get ingresses --all-namespaces -o json | jq -r '.items[].spec.rules[].host | select(. != null and . != "")' | sort -u)
+
+    if [ -z "$NODE_IPS" ]; then
+      echo "ERROR: No nodes found with a valid 'dns.fraguinha.com/external-ip' annotation. Exiting."
+      exit 1
+    fi
+
+    printf "Discovered Node IPs:\n"
+    printf "  %s\n" $NODE_IPS
+    printf "\n"
+    printf "Active Top-Level Domains in Ingresses:\n"
+    printf "  %s\n" $ACTIVE_INGRESS_DOMAINS
+    printf "\n"
+
+    for ACCOUNT_VAR in $(env | grep '^ACCOUNT_.*_DOMAINS' | cut -d= -f1); do
+      ACCOUNT_PREFIX=$(echo "$ACCOUNT_VAR" | sed 's/_DOMAINS$//')
+
+      ACCOUNT_EMAIL=$(printenv "${ACCOUNT_PREFIX}_EMAIL")
+      ACCOUNT_HASH=$(printenv "${ACCOUNT_PREFIX}_HASH")
+      CONFIGURED_DOMAINS=$(printenv "${ACCOUNT_PREFIX}_DOMAINS")
+
+      if [ -z "$ACCOUNT_EMAIL" ] || [ -z "$ACCOUNT_HASH" ] || [ -z "$CONFIGURED_DOMAINS" ]; then
+        printf "----------------------------------------------------\n"
+        printf "  WARNING: Incomplete configuration for %s. Skipping.\n" "$ACCOUNT_PREFIX"
+        continue
+      fi
+
+      printf "----------------------------------------------------\n"
+      printf "  Processing Account: %s\n" "$ACCOUNT_EMAIL"
+      printf "----------------------------------------------------\n"
+
+      for CONFIGURED_DOMAIN in $(echo "$CONFIGURED_DOMAINS" | tr ',' ' '); do
+        printf "  Configured Domain: %s\n" "$CONFIGURED_DOMAIN"
+
+        PTISP_RECORDS=$(curl -s -u "$ACCOUNT_EMAIL:$ACCOUNT_HASH" "https://api.ptisp.pt/parking/$CONFIGURED_DOMAIN/dns/list")
+        if [ "$(echo "$PTISP_RECORDS" | jq -r .result)" != "ok" ]; then
+          printf "    ERROR: Failed to list DNS records. Response: %s\n" "$PTISP_RECORDS"
+          continue
+        fi
+
+        SUBDOMAINS=$(echo "$ACTIVE_INGRESS_DOMAINS" | grep -E "(^|\\.)$CONFIGURED_DOMAIN$")
+
+        for DOMAIN in $SUBDOMAINS; do
+          printf "    Processing Domain: %s\n" "$DOMAIN"
+
+          RECORDS=$(echo "$PTISP_RECORDS" | jq -r --arg domain "$DOMAIN" '.records[] | select(.type == "A" and .name == ($domain + ".")) | "\(.address) \(.line)"')
+          DESIRED_IPS="$NODE_IPS"
+
+          COMMANDS=$(
+            echo "$RECORDS" | while read -r ip_address line_number; do
+              if [ -z "$ip_address" ]; then continue; fi
+
+              if echo "$DESIRED_IPS" | grep -q -x "$ip_address"; then
+                printf "printf '    - KEEP:   %s -> %s\\n';\n" "$DOMAIN" "$ip_address"
+              else
+                printf "printf '    - DELETE: %s -> %s\\n';\n" "$DOMAIN" "$ip_address"
+
+                printf "curl -s -X POST -u '%s:%s'  'https://api.ptisp.pt/parking/%s/dns/%s/delete' > /dev/null;\n" \
+                  "$ACCOUNT_EMAIL" \
+                  "$ACCOUNT_HASH" \
+                  "$CONFIGURED_DOMAIN" \
+                  "$line_number"
+              fi
+            done
+
+            for desired_ip in $DESIRED_IPS; do
+              if ! echo "$RECORDS" | grep -q -E "^$desired_ip [0-9]+$"; then
+                PAYLOAD=$(printf '{"name": "%s.", "type": "A", "class": "IN", "address": "%s", "ttl": 300}' "$DOMAIN" "$desired_ip")
+                printf "printf '    + CREATE: %s -> %s\\n';\n" "$DOMAIN" "$desired_ip"
+                printf "curl -s -X POST -H 'Content-Type: application/json' -u '%s:%s' -d '%s' 'https://api.ptisp.pt/parking/%s/dns/add' > /dev/null;\n" \
+                  "$ACCOUNT_EMAIL" \
+                  "$ACCOUNT_HASH" \
+                  "$PAYLOAD" \
+                  "$CONFIGURED_DOMAIN"
+              fi
+            done
+          )
+
+          sh -c "$COMMANDS"
+          printf "\n"
+        done
+      done
+    done
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dns-cronjob
+  namespace: dns
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: dns-cronjob
+          restartPolicy: OnFailure
+          containers:
+          - name: dns
+            image: alpine/k8s:1.31.13
+            command: ["/bin/sh", "/script/dns.sh"]
+            envFrom:
+            - secretRef:
+                name: dns-secrets
+            volumeMounts:
+            - name: script-volume
+              mountPath: /script
+          volumes:
+          - name: script-volume
+            configMap:
+              name: dns-script

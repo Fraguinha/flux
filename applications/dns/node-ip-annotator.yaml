@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-ip-annotator
+  namespace: dns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-ip-annotator
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-ip-annotator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-ip-annotator
+subjects:
+- kind: ServiceAccount
+  name: node-ip-annotator
+  namespace: dns
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-ip-annotator
+  namespace: dns
+  labels:
+    app: node-ip-annotator
+spec:
+  selector:
+    matchLabels:
+      app: node-ip-annotator
+  template:
+    metadata:
+      labels:
+        app: node-ip-annotator
+    spec:
+      serviceAccountName: node-ip-annotator
+      hostNetwork: true
+      containers:
+      - name: annotator
+        image: alpine/k8s:1.31.13
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          #!/bin/sh
+          set -euo pipefail
+          NODE_NAME=$(cat /etc/nodename)
+
+          while true; do
+            PUBLIC_IP=$(curl -s ipinfo.io/ip)
+
+            if [ -z "$PUBLIC_IP" ]; then
+              echo "Failed to get public IP"
+              sleep 300
+              continue
+            fi
+            echo "Found public IP: $PUBLIC_IP for node $NODE_NAME"
+
+            CURRENT_IP=$(kubectl get node $NODE_NAME -o jsonpath='{.metadata.annotations.dns\.fraguinha\.com/external-ip}')
+
+            if [ "$PUBLIC_IP" != "$CURRENT_IP" ]; then
+              echo "IP has changed from '$CURRENT_IP' to '$PUBLIC_IP'. Annotating node..."
+              kubectl annotate node $NODE_NAME dns.fraguinha.com/external-ip=$PUBLIC_IP --overwrite
+            else
+              echo "IP is unchanged. No update needed."
+            fi
+
+            sleep 300
+          done
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: nodename
+          mountPath: /etc/nodename
+      volumes:
+      - name: nodename
+        hostPath:
+          path: /etc/hostname
