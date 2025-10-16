@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: flux-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: grafana
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  targetNamespace: monitoring
+  values:
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        labelValue: "1"
+    persistence:
+      enabled: true
+      type: pvc
+      storageClassName: longhorn
+      size: 4Gi
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://monitoring-loki-gateway.monitoring.svc.cluster.local:80
+          isDefault: true
+          jsonData:
+            maxLines: 1000
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://monitoring-kube-prometheus-prometheus:9090
+          isDefault: false

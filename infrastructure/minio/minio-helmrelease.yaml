@@ -1,0 +1,36 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minio
+  namespace: flux-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: minio
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: minio
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  targetNamespace: minio
+  values:
+    replicas: 3
+    persistence:
+      storageClass: "longhorn"
+      size: 4Gi
+    securityContext:
+      enabled: false
+    ingress:
+      enabled: false
+    resources:
+      requests:
+        memory: 256Mi
