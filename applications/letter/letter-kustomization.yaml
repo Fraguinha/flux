@@ -1,0 +1,41 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: letter
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./k8s
+  prune: true
+  retryInterval: 3m0s
+  sourceRef:
+    kind: GitRepository
+    name: letter-git
+  targetNamespace: letter
+  timeout: 3m0s
+  wait: true
+  dependsOn:
+    - name: infra-external-dns
+  patches:
+    - patch: |
+        - op: add
+          path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target
+          value: ${PUBLIC_IPS}
+      target:
+        kind: Ingress
+    - patch: |
+        - op: add
+          path: /spec/template/spec/affinity
+          value:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
+      target:
+        group: apps
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: external-dns-targets

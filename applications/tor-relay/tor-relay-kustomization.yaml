@@ -1,0 +1,29 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tor-relay
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./k8s
+  prune: true
+  retryInterval: 3m0s
+  sourceRef:
+    kind: GitRepository
+    name: tor-relay-git
+  targetNamespace: tor-relay
+  timeout: 3m0s
+  wait: true
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/template/spec/affinity
+          value:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
+      target:
+        group: apps

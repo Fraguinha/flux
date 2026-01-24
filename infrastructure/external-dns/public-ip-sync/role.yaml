@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: public-ip-sync-configmap-updater
+  namespace: flux-system
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["external-dns-targets"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: public-ip-sync-configmap-updater
+  namespace: flux-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: public-ip-sync-configmap-updater
+subjects:
+  - kind: ServiceAccount
+    name: public-ip-sync
+    namespace: external-dns

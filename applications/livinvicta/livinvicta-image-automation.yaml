@@ -1,0 +1,69 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: livinvicta-backend-image
+  namespace: flux-system
+spec:
+  image: fraguinha/livinvicta.com-backend
+  interval: 5m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: livinvicta-backend-policy
+  namespace: flux-system
+spec:
+  digestReflectionPolicy: Always
+  interval: 5m
+  imageRepositoryRef:
+    name: livinvicta-backend-image
+  filterTags:
+    pattern: '^latest$'
+  policy:
+    alphabetical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: livinvicta-frontend-image
+  namespace: flux-system
+spec:
+  image: fraguinha/livinvicta.com-frontend
+  interval: 5m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: livinvicta-frontend-policy
+  namespace: flux-system
+spec:
+  digestReflectionPolicy: Always
+  interval: 5m
+  imageRepositoryRef:
+    name: livinvicta-frontend-image
+  filterTags:
+    pattern: '^latest$'
+  policy:
+    alphabetical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: livinvicta-update-automation
+  namespace: flux-system
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: livinvicta-git
+  git:
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+    push:
+      branch: main
+  update:
+    path: ./k8s

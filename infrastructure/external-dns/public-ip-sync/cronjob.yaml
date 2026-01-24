@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: public-ip-synchronizer
+  namespace: external-dns
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: public-ip-sync
+          restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          containers:
+            - name: synchronizer
+              image: alpine/k8s:1.31.4
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  IPS=$(kubectl get nodes \
+                    -o go-template='{{range .items}}{{if index .metadata.annotations "public-ip-sync/public-ip"}}{{index .metadata.annotations "public-ip-sync/public-ip"}}{{"\n"}}{{end}}{{end}}' \
+                    | sort -u | tr '\n' ',' | sed 's/,$//')
+
+                  if [ -z "$IPS" ]; then
+                    echo "No public IPs found on nodes, skipping"
+                    exit 0
+                  fi
+
+                  echo "Syncing target IPs: $IPS"
+
+                  kubectl patch configmap external-dns-targets -n flux-system \
+                    --type merge -p "{\"data\":{\"PUBLIC_IPS\":\"$IPS\"}}"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi
