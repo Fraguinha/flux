@@ -1,0 +1,16 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: a50passos
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./k8s
+  prune: true
+  retryInterval: 3m0s
+  sourceRef:
+    kind: GitRepository
+    name: a50passos-git
+  targetNamespace: a50passos
+  timeout: 3m0s
+  wait: true
