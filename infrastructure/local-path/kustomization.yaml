@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - storageclass.yaml
+patches:
+  - path: patches/unset-local-path-default.yaml
+    target:
+      kind: StorageClass
+      name: local-path

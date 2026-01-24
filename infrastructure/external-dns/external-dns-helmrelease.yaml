@@ -1,0 +1,113 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: flux-system
+spec:
+  interval: 5m
+  releaseName: external-dns
+  chart:
+    spec:
+      chart: external-dns
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+  targetNamespace: external-dns
+  values:
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroup: 1000
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: fraguinha/ptisp-webhook-provider
+          tag: latest
+          pullPolicy: Always
+        resources:
+          requests:
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        env:
+          - name: SERVER_PORT
+            value: "8080"
+          - name: PTISP_FRAGUINHA_EMAIL
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_FRAGUINHA_EMAIL
+          - name: PTISP_FRAGUINHA_HASH
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_FRAGUINHA_HASH
+          - name: PTISP_FRAGUINHA_DOMAINS
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_FRAGUINHA_DOMAINS
+          - name: PTISP_A50PASSOS_EMAIL
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_A50PASSOS_EMAIL
+          - name: PTISP_A50PASSOS_HASH
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_A50PASSOS_HASH
+          - name: PTISP_A50PASSOS_DOMAINS
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_A50PASSOS_DOMAINS
+          - name: PTISP_LIVINVICTA_EMAIL
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_LIVINVICTA_EMAIL
+          - name: PTISP_LIVINVICTA_HASH
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_LIVINVICTA_HASH
+          - name: PTISP_LIVINVICTA_DOMAINS
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: PTISP_LIVINVICTA_DOMAINS
+    extraArgs:
+      - --webhook-provider-url=http://127.0.0.1:8080/
+    policy: sync
+    sources:
+      - ingress
+    domainFilters:
+      - a50passos.com
+      - fraguinha.com
+      - livinvicta.com
+    txtOwnerId: k8s-cluster
+

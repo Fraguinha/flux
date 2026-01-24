@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  chart:
+    spec:
+      chart: cert-manager
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: cert-manager
+  interval: 5m
+  releaseName: cert-manager
+  storageNamespace: cert-manager
+  targetNamespace: cert-manager
+  values:
+    installCRDs: true

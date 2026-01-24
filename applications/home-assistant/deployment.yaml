@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+  labels:
+    app: home-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-assistant
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      # hostAliases:
+      #   - ip: "192.168.1.211"
+      #     hostnames:
+      #       - "9hb-eu-uca5853a.local"
+      #   - ip: "192.168.1.101"
+      #     hostnames:
+      #       - "x4n-eu-sga2286a.local"
+      #   - ip: "192.168.1.214"
+      #     hostnames:
+      #       - "9hb-eu-uaa0429a.local"
+      initContainers:
+        - name: install-hacs
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -d /config/custom_components/hacs ]; then
+                mkdir -p /config/custom_components
+                wget -O /tmp/hacs.zip https://github.com/hacs/integration/releases/latest/download/hacs.zip
+                unzip /tmp/hacs.zip -d /config/custom_components/hacs
+              fi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+        - name: enable-bluetooth
+          image: ghcr.io/home-assistant/home-assistant:stable
+          command:
+            - sh
+            - -c
+            - |
+              hciconfig hci0 up || true
+          securityContext:
+            privileged: true
+      containers:
+        - name: home-assistant
+          image: ghcr.io/home-assistant/home-assistant:stable
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "Europe/Lisbon"
+          ports:
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: config-file
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+            - name: dbus
+              mountPath: /run/dbus
+              readOnly: true
+          securityContext:
+            privileged: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+      nodeSelector:
+        kubernetes.io/hostname: fraguinha
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: home-assistant-config
+        - name: config-file
+          configMap:
+            name: home-assistant-config
+        - name: dbus
+          hostPath:
+            path: /run/dbus
+            type: Directory
