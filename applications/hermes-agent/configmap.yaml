@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-agent-config
+  namespace: hermes-agent
+data:
+  config.yaml: |
+    model:
+      provider: copilot
+      default: claude-opus-4.6
+      context_length: 1000000
+    agent:
+      reasoning_effort: xhigh
+    terminal:
+      env_passthrough:
+        - GITHUB_TOKEN

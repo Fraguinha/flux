@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes-agent-ingress
+  namespace: hermes-agent
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  rules:
+    - host: agent.fraguinha.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hermes-agent
+                port:
+                  number: 9119
+  tls:
+    - hosts:
+        - agent.fraguinha.com
+      secretName: hermes-agent-tls

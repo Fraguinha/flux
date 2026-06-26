@@ -1,0 +1,150 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: flux-system
+spec:
+  interval: 5m
+  releaseName: external-dns
+  chart:
+    spec:
+      chart: external-dns
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    createNamespace: true
+    timeout: 30m
+  upgrade:
+    crds: CreateReplace
+    timeout: 30m
+  targetNamespace: external-dns
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: external-dns
+            patch: |-
+              - op: remove
+                path: /spec/template/spec/containers/1
+              - op: add
+                path: /spec/template/spec/initContainers
+                value:
+                  - name: webhook
+                    image: fraguinha/ptisp-webhook-provider:latest
+                    imagePullPolicy: Always
+                    restartPolicy: Always
+                    ports:
+                      - containerPort: 8080
+                    resources:
+                      requests:
+                        cpu: 100m
+                        memory: 384Mi
+                      limits:
+                        memory: 512Mi
+                    startupProbe:
+                      httpGet:
+                        path: /actuator/health/liveness
+                        port: 8080
+                      initialDelaySeconds: 15
+                      periodSeconds: 5
+                      failureThreshold: 24
+                    readinessProbe:
+                      httpGet:
+                        path: /actuator/health/readiness
+                        port: 8080
+                      initialDelaySeconds: 5
+                      periodSeconds: 5
+                      failureThreshold: 3
+                    livenessProbe:
+                      httpGet:
+                        path: /actuator/health/liveness
+                        port: 8080
+                      periodSeconds: 10
+                      failureThreshold: 5
+                    env:
+                      - name: SERVER_PORT
+                        value: "8080"
+                      - name: JAVA_TOOL_OPTIONS
+                        value: "-Xmx128m -Xms64m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -Xss256k -XX:MaxDirectMemorySize=10m -XX:ActiveProcessorCount=2"
+                      - name: PTISP_FRAGUINHA_EMAIL
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_FRAGUINHA_EMAIL
+                      - name: PTISP_FRAGUINHA_HASH
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_FRAGUINHA_HASH
+                      - name: PTISP_FRAGUINHA_DOMAINS
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_FRAGUINHA_DOMAINS
+                      - name: PTISP_A50PASSOS_EMAIL
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_A50PASSOS_EMAIL
+                      - name: PTISP_A50PASSOS_HASH
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_A50PASSOS_HASH
+                      - name: PTISP_A50PASSOS_DOMAINS
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_A50PASSOS_DOMAINS
+                      - name: PTISP_LIVINVICTA_EMAIL
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_LIVINVICTA_EMAIL
+                      - name: PTISP_LIVINVICTA_HASH
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_LIVINVICTA_HASH
+                      - name: PTISP_LIVINVICTA_DOMAINS
+                        valueFrom:
+                          secretKeyRef:
+                            name: external-dns-secrets
+                            key: PTISP_LIVINVICTA_DOMAINS
+  values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 512Mi
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroup: 1000
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: fraguinha/ptisp-webhook-provider
+          tag: latest
+    podAnnotations:
+      ptisp-webhook-provider/digest: "sha256:c1f9339504f05c9db2bbdda50cc101898c9d5706088ef0ee36b53e386952940e" # {"$imagepolicy": "flux-system:ptisp-webhook-provider-policy:digest"}
+    logLevel: info
+    extraArgs:
+      - --webhook-provider-url=http://127.0.0.1:8080/
+      - --webhook-provider-read-timeout=30s
+      - --webhook-provider-write-timeout=30s
+      - --txt-prefix=_edns.
+      - --ingress-class=traefik
+      - --no-resolve-service-load-balancer-hostname
+    policy: sync
+    sources:
+      - ingress
+    txtOwnerId: k8s-cluster

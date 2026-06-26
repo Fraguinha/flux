@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: a50passos-git
+  namespace: flux-system
+spec:
+  interval: 5m
+  ref:
+    branch: master
+  secretRef:
+    name: git-credentials
+  url: https://github.com/fraguinha/a50passos.com

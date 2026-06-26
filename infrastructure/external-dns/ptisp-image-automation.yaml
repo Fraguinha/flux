@@ -1,0 +1,44 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: ptisp-webhook-provider-image
+  namespace: flux-system
+spec:
+  image: fraguinha/ptisp-webhook-provider
+  interval: 5m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: ptisp-webhook-provider-policy
+  namespace: flux-system
+spec:
+  digestReflectionPolicy: Always
+  interval: 5m
+  imageRepositoryRef:
+    name: ptisp-webhook-provider-image
+  filterTags:
+    pattern: '^latest$'
+  policy:
+    alphabetical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: ptisp-webhook-provider-update-automation
+  namespace: flux-system
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+    push:
+      branch: main
+  update:
+    path: ./infrastructure/external-dns
