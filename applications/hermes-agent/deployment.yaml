@@ -40,6 +40,8 @@ spec:
           env:
             - name: HERMES_DASHBOARD
               value: "1"
+            - name: SIGNAL_HTTP_URL
+              value: "http://signal-cli:8080"
           envFrom:
             - secretRef:
                 name: hermes-agent-secrets
