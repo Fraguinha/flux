@@ -373,5 +373,8 @@ data:
       "defaultModel": "claude-opus-4.6",
       "defaultThinkingLevel": "xhigh",
       "steeringMode": "all",
-      "followUpMode": "all"
+      "followUpMode": "all",
+      "packages": [
+        "npm:pi-web-access"
+      ]
     }
