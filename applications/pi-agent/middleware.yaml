@@ -1,0 +1,8 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pi-agent-auth
+  namespace: pi-agent
+spec:
+  forwardAuth:
+    address: http://pi-agent-auth.pi-agent.svc.cluster.local:3000/verify

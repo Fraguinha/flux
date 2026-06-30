@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-agent
+  namespace: pi-agent
+  labels:
+    app: pi-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pi-agent
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: pi-agent
+    spec:
+      serviceAccountName: pi-agent
+      containers:
+        - name: pi-agent
+          image: tsl0922/ttyd:alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              apk add --no-cache openssh-client tmux >/dev/null 2>&1
+              exec ttyd -W -I /etc/ttyd/index.html /opt/bin/pi-session
+          ports:
+            - name: http
+              containerPort: 7681
+              protocol: TCP
+          volumeMounts:
+            - name: index
+              mountPath: /etc/ttyd
+              readOnly: true
+            - name: script
+              mountPath: /opt/bin
+              readOnly: true
+            - name: ssh
+              mountPath: /root/.ssh
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+      volumes:
+        - name: index
+          configMap:
+            name: pi-agent-ttyd
+            items:
+              - key: index.html
+                path: index.html
+        - name: script
+          configMap:
+            name: pi-agent-ttyd
+            items:
+              - key: pi-session.sh
+                path: pi-session
+            defaultMode: 0755
+        - name: ssh
+          projected:
+            defaultMode: 0600
+            sources:
+              - secret:
+                  name: pi-agent-secrets
+                  items:
+                    - key: id_ed25519
+                      path: id_ed25519
+                    - key: id_ed25519.pub
+                      path: id_ed25519.pub
+              - configMap:
+                  name: pi-agent-dotfiles
+                  items:
+                    - key: ssh_known_hosts
+                      path: known_hosts

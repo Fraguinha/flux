@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - middleware.yaml
+  - auth/
+  - configmap/
+  - deployment.yaml
+  - tmux/
+  - ingress.yaml
+  - pvc.yaml
+  - service.yaml
+  - pi-agent-secrets.sops.yaml

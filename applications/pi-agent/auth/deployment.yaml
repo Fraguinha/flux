@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-agent-auth
+  namespace: pi-agent
+  labels:
+    app: pi-agent-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pi-agent-auth
+  template:
+    metadata:
+      labels:
+        app: pi-agent-auth
+    spec:
+      containers:
+        - name: auth
+          image: node:22-alpine
+          command: ["node", "/app/server.js"]
+          env:
+            - name: AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: pi-agent-secrets
+                  key: AUTH_USERNAME
+            - name: AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pi-agent-secrets
+                  key: AUTH_PASSWORD
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: app
+              mountPath: /app
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+      volumes:
+        - name: app
+          configMap:
+            name: pi-agent-auth

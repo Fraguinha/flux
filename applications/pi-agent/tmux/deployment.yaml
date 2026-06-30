@@ -1,0 +1,155 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-agent-tmux
+  namespace: pi-agent
+  labels:
+    app: pi-agent-tmux
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pi-agent-tmux
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pi-agent-tmux
+    spec:
+      serviceAccountName: pi-agent
+      containers:
+        - name: tmux
+          image: alpine:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              apk add --no-cache nodejs npm git github-cli openssh-server openssh-client kubectl tmux >/dev/null 2>&1
+              npm install -g --ignore-scripts @earendil-works/pi-coding-agent >/dev/null 2>&1
+
+              exec /usr/sbin/sshd -D -e -p 2222 \
+                -h /etc/ssh/keys/id_ed25519 \
+                -o StrictModes=no \
+                -o PermitRootLogin=prohibit-password \
+                -o PasswordAuthentication=no \
+                -o AuthorizedKeysFile=/etc/ssh/keys/authorized_keys
+          env:
+            - name: GIT_SSH_COMMAND
+              value: "ssh -i /etc/ssh/keys/id_ed25519 -o UserKnownHostsFile=/etc/ssh/keys/known_hosts -o StrictHostKeyChecking=yes"
+          ports:
+            - name: ssh
+              containerPort: 2222
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /root
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/AGENTS.md
+              subPath: AGENTS.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/settings.json
+              subPath: settings.json
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/orchestrator.md
+              subPath: agents/orchestrator.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/planner.md
+              subPath: agents/planner.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/reflector.md
+              subPath: agents/reflector.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/reviewer.md
+              subPath: agents/reviewer.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/router.md
+              subPath: agents/router.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/scout.md
+              subPath: agents/scout.md
+              readOnly: true
+            - name: pi-agent-config
+              mountPath: /root/.pi/agent/agents/worker.md
+              subPath: agents/worker.md
+              readOnly: true
+            - name: tmux-config
+              mountPath: /etc/tmux.conf
+              subPath: .tmux.conf
+              readOnly: true
+            - name: git-config
+              mountPath: /etc/gitconfig
+              subPath: .gitconfig
+              readOnly: true
+            - name: ssh
+              mountPath: /etc/ssh/keys
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pi-agent-data
+        - name: pi-agent-config
+          projected:
+            sources:
+              - configMap:
+                  name: pi-agent-config
+                  items:
+                    - key: AGENTS.md
+                      path: AGENTS.md
+                    - key: settings.json
+                      path: settings.json
+                    - key: orchestrator.md
+                      path: agents/orchestrator.md
+                    - key: planner.md
+                      path: agents/planner.md
+                    - key: reflector.md
+                      path: agents/reflector.md
+                    - key: reviewer.md
+                      path: agents/reviewer.md
+                    - key: router.md
+                      path: agents/router.md
+                    - key: scout.md
+                      path: agents/scout.md
+                    - key: worker.md
+                      path: agents/worker.md
+        - name: tmux-config
+          configMap:
+            name: pi-agent-dotfiles
+        - name: git-config
+          configMap:
+            name: pi-agent-dotfiles
+        - name: ssh
+          projected:
+            defaultMode: 0600
+            sources:
+              - secret:
+                  name: pi-agent-secrets
+                  items:
+                    - key: id_ed25519
+                      path: id_ed25519
+                    - key: id_ed25519.pub
+                      path: id_ed25519.pub
+                    - key: id_ed25519.pub
+                      path: authorized_keys
+              - configMap:
+                  name: pi-agent-dotfiles
+                  items:
+                    - key: ssh_known_hosts
+                      path: known_hosts

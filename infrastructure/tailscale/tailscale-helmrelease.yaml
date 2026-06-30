@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tailscale-helmrelease
+  namespace: flux-system
+spec:
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    timeout: 30m
+    createNamespace: true
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: tailscale-operator
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: tailscale
+  interval: 1m
+  releaseName: tailscale-operator
+  storageNamespace: tailscale
+  targetNamespace: tailscale
+  valuesFrom:
+    - kind: Secret
+      name: tailscale-secrets
+      valuesKey: oauth-client-id
+      targetPath: oauth.clientId
+    - kind: Secret
+      name: tailscale-secrets
+      valuesKey: oauth-client-secret
+      targetPath: oauth.clientSecret
+  values: {}
