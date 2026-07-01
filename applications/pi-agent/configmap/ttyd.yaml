@@ -142,11 +142,19 @@ data:
           if (schemeMq.addEventListener) schemeMq.addEventListener('change', applyScheme);
 
           var fitTimer;
+          var lastFitW = 0;
+          var lastFitH = 0;
           function doFit() {
             if (window.visualViewport) {
               document.body.style.height = window.visualViewport.height + 'px';
             }
-            try { fitAddon.fit(); } catch(e) {}
+            var w = container.clientWidth;
+            var h = container.clientHeight;
+            if (lastFitW === 0 || w !== lastFitW || Math.abs(h - lastFitH) > 80) {
+              lastFitW = w;
+              lastFitH = h;
+              try { fitAddon.fit(); } catch(e) {}
+            }
           }
           function scheduleFit() {
             clearTimeout(fitTimer);
