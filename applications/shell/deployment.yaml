@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell
+  namespace: shell
+  labels:
+    app: shell
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shell
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: shell
+    spec:
+      serviceAccountName: shell
+      containers:
+        - name: shell
+          image: tsl0922/ttyd:alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              apk add --no-cache openssh-client >/dev/null 2>&1
+              exec ttyd -W -I /etc/ttyd/index.html /opt/bin/shell
+          ports:
+            - name: http
+              containerPort: 7681
+              protocol: TCP
+          volumeMounts:
+            - name: index
+              mountPath: /etc/ttyd
+              readOnly: true
+            - name: script
+              mountPath: /opt/bin
+              readOnly: true
+            - name: ssh
+              mountPath: /root/.ssh
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+      volumes:
+        - name: index
+          configMap:
+            name: shell-ttyd
+            items:
+              - key: index.html
+                path: index.html
+        - name: script
+          configMap:
+            name: shell-ttyd
+            items:
+              - key: shell.sh
+                path: shell
+            defaultMode: 0755
+        - name: ssh
+          projected:
+            defaultMode: 0600
+            sources:
+              - secret:
+                  name: shell-secrets
+                  items:
+                    - key: id_ed25519
+                      path: id_ed25519
+                    - key: id_ed25519.pub
+                      path: id_ed25519.pub
+              - configMap:
+                  name: shell-dotfiles
+                  items:
+                    - key: ssh_known_hosts
+                      path: known_hosts
