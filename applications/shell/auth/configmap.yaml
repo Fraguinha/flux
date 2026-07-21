@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shell-auth
+  namespace: shell
+data:
+  server.js: |
+    const http = require('http');
+    const crypto = require('crypto');
+    const { URL } = require('url');
+
+    const USERNAME = process.env.AUTH_USERNAME;
+    const PASSWORD = process.env.AUTH_PASSWORD;
+    const SECRET = crypto.createHash('sha256').update(PASSWORD + 'shell-auth').digest();
+    const COOKIE_NAME = '__pi_auth';
+    const COOKIE_MAX_AGE = 86400 * 7;
+
+    function signToken(data) {
+      const payload = Buffer.from(JSON.stringify(data)).toString('base64url');
+      const sig = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+      return `$${payload}.$${sig}`;
+    }
+
+    function verifyToken(token) {
+      try {
+        const [payload, sig] = token.split('.');
+        if (!payload || !sig) return null;
+        const expectedSig = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) return null;
+        const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+        if (data.exp < Date.now()) return null;
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function parseCookies(header) {
+      const cookies = {};
+      if (header) {
+        header.split(';').forEach(c => {
+          const [k, ...v] = c.trim().split('=');
+          cookies[k] = v.join('=');
+        });
+      }
+      return cookies;
+    }
+
+    function parseBody(req) {
+      return new Promise((resolve) => {
+        let body = '';
+        req.on('data', c => body += c);
+        req.on('end', () => resolve(new URLSearchParams(body)));
+      });
+    }
+
+    const LOGIN_PAGE = (error = '') => `<!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Pi Agent</title>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Jura:400,700">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Jura, sans-serif; }
+        ::selection { background-color: #b6262c; color: #fff; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .modal { position: relative; padding: 2rem; width: 100%; max-width: 360px; }
+        .modal h1 { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.25rem; }
+        .modal .subtitle { font-size: 0.8rem; color: #b6262c; margin-bottom: 1.5rem; }
+        .field { margin-bottom: 1rem; text-align: left; }
+        .field label { display: block; font-size: 0.75rem; margin-bottom: 0.3rem; text-transform: uppercase; }
+        .field input { width: 100%; padding: 0.5rem; font-family: Jura, sans-serif; font-size: 0.9rem; outline: none; }
+        .field input:focus { border-color: #b6262c; }
+        button { width: 100%; padding: 0.5em 1em; border: 0; border-radius: 0.2em; font-family: Jura, sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 0.5rem; transition: all 0.3s ease-in-out; }
+        .error { color: #b6262c; font-size: 0.8rem; margin-bottom: 1rem; display: $${error ? 'block' : 'none'}; }
+        a { color: #b6262c; text-decoration: none; transition: color 0.5s; }
+        @media (prefers-color-scheme: light) {
+          body { background-color: #fff; color: #000; }
+          .modal h1 { color: #000; }
+          .modal .subtitle { color: #444; }
+          .field label { color: #444; }
+          .field input { color: #000; background-color: rgb(229, 229, 229); border: 1px solid #ccc; }
+          button { color: #000; background-color: rgb(229, 229, 229); border: 1px solid #ccc; }
+          button:hover { background-color: #b6262c; color: #fff; border-color: #b6262c; }
+        }
+        @media (prefers-color-scheme: dark) {
+          body { background-color: #222; color: #fff; }
+          .modal h1 { color: #fff; }
+          .modal .subtitle { color: #bbb; }
+          .field label { color: #bbb; }
+          .field input { color: #fff; background-color: rgb(82, 82, 82); border: 1px solid #666; }
+          button { color: #fff; background-color: rgb(82, 82, 82); border: 1px solid #666; }
+          button:hover { background-color: #b6262c; color: #fff; border-color: #b6262c; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="modal">
+        <h1>Pi Agent</h1>
+        <p class="subtitle">Enter your credentials to continue</p>
+        <div class="error">$${error}</div>
+        <form method="POST" action="/_auth/login">
+          <div class="field">
+            <label>Username</label>
+            <input type="text" name="username" autocomplete="username" autofocus required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" autocomplete="current-password" required>
+          </div>
+          <button type="submit">Sign In</button>
+        </form>
+      </div>
+    </body>
+    </html>`;
+
+    const server = http.createServer(async (req, res) => {
+      const url = new URL(req.url, `http://$${req.headers.host}`);
+
+      if (url.pathname === '/verify') {
+        const cookies = parseCookies(req.headers.cookie || '');
+        const token = cookies[COOKIE_NAME];
+        if (token && verifyToken(token)) {
+          res.writeHead(200);
+          return res.end();
+        }
+        const proto = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['x-forwarded-host'] || req.headers.host;
+        res.writeHead(302, { Location: `$${proto}://$${host}/_auth/login` });
+        return res.end();
+      }
+
+      if (url.pathname === '/_auth/login' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        return res.end(LOGIN_PAGE());
+      }
+
+      if (url.pathname === '/_auth/login' && req.method === 'POST') {
+        const params = await parseBody(req);
+        const username = params.get('username');
+        const password = params.get('password');
+
+        if (username === USERNAME && password === PASSWORD) {
+          const token = signToken({ user: username, exp: Date.now() + COOKIE_MAX_AGE * 1000 });
+          res.writeHead(302, {
+            Location: '/',
+            'Set-Cookie': `$${COOKIE_NAME}=$${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=$${COOKIE_MAX_AGE}`
+          });
+          return res.end();
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        return res.end(LOGIN_PAGE('Invalid username or password'));
+      }
+
+      if (url.pathname === '/_auth/logout') {
+        res.writeHead(302, {
+          Location: '/_auth/login',
+          'Set-Cookie': `$${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+        });
+        return res.end();
+      }
+
+      res.writeHead(404);
+      res.end();
+    });
+
+    server.listen(3000, () => console.log('Auth server listening on :3000'));

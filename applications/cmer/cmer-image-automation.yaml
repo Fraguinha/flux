@@ -1,0 +1,44 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: cmer-frontend-image
+  namespace: flux-system
+spec:
+  image: fraguinha/cmer-frontend
+  interval: 1m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: cmer-frontend-policy
+  namespace: flux-system
+spec:
+  digestReflectionPolicy: Always
+  interval: 1m
+  imageRepositoryRef:
+    name: cmer-frontend-image
+  filterTags:
+    pattern: '^latest$'
+  policy:
+    alphabetical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: cmer-update-automation
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: cmer-git
+  git:
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+    push:
+      branch: main
+  update:
+    path: ./k8s

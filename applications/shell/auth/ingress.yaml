@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shell-auth
+  namespace: shell
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    external-dns.alpha.kubernetes.io/target: ${PUBLIC_IPS}
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: shell.fraguinha.com
+      http:
+        paths:
+          - path: /_auth
+            pathType: Prefix
+            backend:
+              service:
+                name: shell-auth
+                port:
+                  number: 3000
+  tls:
+    - hosts:
+        - shell.fraguinha.com
+      secretName: shell-tls

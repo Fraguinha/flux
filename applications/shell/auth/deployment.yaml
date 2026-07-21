@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell-auth
+  namespace: shell
+  labels:
+    app: shell-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shell-auth
+  template:
+    metadata:
+      labels:
+        app: shell-auth
+    spec:
+      containers:
+        - name: auth
+          image: node:22-alpine
+          command: ["node", "/app/server.js"]
+          env:
+            - name: AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: shell-secrets
+                  key: AUTH_USERNAME
+            - name: AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shell-secrets
+                  key: AUTH_PASSWORD
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: app
+              mountPath: /app
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+      volumes:
+        - name: app
+          configMap:
+            name: shell-auth

@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell-tmux
+  namespace: shell
+  labels:
+    app: shell-tmux
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shell-tmux
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: shell-tmux
+    spec:
+      serviceAccountName: shell
+      containers:
+        - name: tmux
+          image: alpine:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              apk add --no-cache nodejs npm git github-cli openssh-client openssh-server kubectl tmux build-base python3 >/dev/null 2>&1
+              npm install -g --ignore-scripts @earendil-works/pi-coding-agent >/dev/null 2>&1
+
+              mkdir -p /root/.pi/agent/themes
+              [ -f /root/.pi/agent/themes/system.json ] || /opt/bin/update-theme dark
+
+              exec /usr/sbin/sshd -D -e -p 2222 \
+                -h /etc/ssh/keys/id_ed25519 \
+                -o StrictModes=no \
+                -o PermitRootLogin=prohibit-password \
+                -o PasswordAuthentication=no \
+                -o AuthorizedKeysFile=/etc/ssh/keys/authorized_keys \
+                -o AcceptEnv=COLOR_SCHEME \
+                -o SetEnv=LANG=C.UTF-8
+          env:
+            - name: LANG
+              value: C.UTF-8
+            - name: GIT_SSH_COMMAND
+              value: "ssh -i /etc/ssh/keys/id_ed25519 -o UserKnownHostsFile=/etc/ssh/keys/known_hosts -o StrictHostKeyChecking=yes"
+          ports:
+            - name: ssh
+              containerPort: 2222
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /root
+            - name: shell-config
+              mountPath: /root/.pi/agent/AGENTS.md
+              subPath: AGENTS.md
+              readOnly: true
+            - name: shell-config
+              mountPath: /root/.pi/agent/npm/package.json
+              subPath: package.json
+              readOnly: true
+            - name: shell-config
+              mountPath: /root/.pi/agent/settings.json
+              subPath: settings.json
+              readOnly: true
+            - name: git-config
+              mountPath: /opt/bin/update-theme
+              subPath: update-theme.sh
+              readOnly: true
+            - name: git-config
+              mountPath: /etc/gitconfig
+              subPath: .gitconfig
+              readOnly: true
+            - name: git-config
+              mountPath: /root/.tmux.conf
+              subPath: .tmux.conf
+              readOnly: true
+            - name: ssh
+              mountPath: /etc/ssh/keys
+              readOnly: true
+          startupProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: ssh
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: ssh
+            periodSeconds: 30
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: shell-data
+        - name: shell-config
+          projected:
+            sources:
+              - configMap:
+                  name: shell-tmux-config
+                  items:
+                    - key: AGENTS.md
+                      path: AGENTS.md
+                    - key: package.json
+                      path: package.json
+                    - key: settings.json
+                      path: settings.json
+        - name: git-config
+          projected:
+            sources:
+              - configMap:
+                  name: shell-tmux-dotfiles
+                  items:
+                    - key: .gitconfig
+                      path: .gitconfig
+                    - key: .tmux.conf
+                      path: .tmux.conf
+                    - key: update-theme.sh
+                      path: update-theme.sh
+                      mode: 0755
+        - name: ssh
+          projected:
+            defaultMode: 0600
+            sources:
+              - secret:
+                  name: shell-secrets
+                  items:
+                    - key: id_ed25519
+                      path: id_ed25519
+                    - key: id_ed25519.pub
+                      path: id_ed25519.pub
+                    - key: id_ed25519.pub
+                      path: authorized_keys
+              - configMap:
+                  name: shell-ssh-known-hosts
+                  items:
+                    - key: ssh_known_hosts
+                      path: known_hosts

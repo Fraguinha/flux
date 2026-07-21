@@ -1,0 +1,40 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  namespace: cnpg-system
+spec:
+  instances: 3
+
+  postgresql:
+    parameters:
+      shared_buffers: 128MB
+      effective_cache_size: 384MB
+      work_mem: 4MB
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn-single
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  monitoring:
+    enablePodMonitor: true
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://cnpg-backups/
+      endpointURL: http://garage.garage.svc.cluster.local:3900
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-backup-s3
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: cnpg-backup-s3
+          key: ACCESS_SECRET_KEY
+    retentionPolicy: 14d

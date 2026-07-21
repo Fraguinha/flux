@@ -1,0 +1,463 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shell-ttyd-index
+  namespace: shell
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+      <meta name="mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <title>pi</title>
+      <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>π</text></svg>">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+          height: 100dvh;
+          overflow: hidden;
+          overscroll-behavior: none;
+          color-scheme: light dark;
+          background: Canvas;
+        }
+        body {
+          display: flex;
+          flex-direction: column;
+          padding-top: env(safe-area-inset-top);
+        }
+        #terminal-container {
+          flex: 1 1 0%;
+          min-height: 0;
+          overflow: hidden;
+          position: relative;
+        }
+        #terminal-container, #terminal-container * {
+          touch-action: pan-y;
+        }
+        @media (pointer: coarse) {
+          #terminal-container, #terminal-container * {
+            touch-action: none;
+          }
+        }
+        #terminal-container .xterm {
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          padding: 4px;
+        }
+        #terminal-container .xterm-screen {
+          pointer-events: none;
+        }
+
+        #toolbar {
+          display: none;
+          flex-direction: column;
+          padding: 6px 4px calc(env(safe-area-inset-bottom) + 4px);
+          gap: 4px;
+          flex-shrink: 0;
+        }
+        .toolbar-row { display: flex; gap: 4px; justify-content: center; }
+        #toolbar button {
+          padding: 8px 10px;
+          font-size: 13px;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+          min-width: 40px;
+          min-height: 36px;
+        }
+        #toolbar button.mod-active {
+          background: #007aff;
+          color: #fff;
+          border-radius: 6px;
+        }
+        #toolbar button[data-action] {
+          flex: 1;
+        }
+        @media (max-width: 768px) { #toolbar { display: flex; } }
+        #status {
+          display: none;
+          position: fixed;
+          top: calc(env(safe-area-inset-top) + 6px);
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 4px 12px;
+          font-family: monospace;
+          font-size: 12px;
+          color: #fff;
+          background: rgba(70, 70, 70, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          border-radius: 12px;
+          z-index: 100;
+          pointer-events: none;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="terminal-container"></div>
+      <div id="toolbar">
+        <div class="toolbar-row">
+          <button data-ctrl="l">^L</button>
+          <button data-ctrl="b">^B</button>
+          <button data-ctrl="o">^O</button>
+          <button data-ctrl="c">^C</button>
+          <button data-ctrl="d">^D</button>
+          <button data-ctrl="z">^Z</button>
+          <button data-ctrl="r">^R</button>
+          <button data-ctrl="a">^A</button>
+          <button data-ctrl="e">^E</button>
+        </div>
+        <div class="toolbar-row">
+          <button data-key="Escape">Esc</button>
+          <button data-key="Tab">Tab</button>
+          <button data-mod="ctrl" id="btn-ctrl">Ctrl</button>
+          <button data-mod="alt" id="btn-alt">Alt</button>
+          <button data-key="Enter">Ret</button>
+          <button data-key="ArrowLeft">←</button>
+          <button data-key="ArrowDown">↓</button>
+          <button data-key="ArrowUp">↑</button>
+          <button data-key="ArrowRight">→</button>
+        </div>
+        <div class="toolbar-row">
+          <button data-action="copy">Copy</button>
+          <button data-action="paste">Paste</button>
+        </div>
+      </div>
+      <div id="status"></div>
+
+      <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-serialize@0.13.0/lib/addon-serialize.min.js"></script>
+      <script>
+        (function() {
+          var CMD_OUTPUT = 48;
+          var CMD_TITLE = 49;
+          var INPUT_PREFIX = '0';
+          var RESIZE_PREFIX = '1';
+          var SCROLL_PX = 30;
+          var MOUSE_DRAG = 32;
+          var CTRL_OFFSET = 96;
+          var MOVE_THRESHOLD = 5;
+          var LONG_PRESS_MS = 400;
+          var RECONNECT_COOLDOWN = 2000;
+          var DARK_THEME = { background: '#000000', foreground: '#ffffff', cursor: '#ffffff' };
+          var LIGHT_THEME = { background: '#ffffff', foreground: '#000000', cursor: '#000000' };
+          var KEY_MAP = { Escape: '\x1b', Tab: '\t', Enter: '\r', ArrowUp: '\x1b[A', ArrowDown: '\x1b[B', ArrowRight: '\x1b[C', ArrowLeft: '\x1b[D' };
+
+          var container = document.getElementById('terminal-container');
+          var statusEl = document.getElementById('status');
+          var toolbar = document.getElementById('toolbar');
+          var btnCtrl = document.getElementById('btn-ctrl');
+          var btnAlt = document.getElementById('btn-alt');
+
+          var term = new Terminal({
+            fontSize: 15,
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace",
+            cursorBlink: true,
+            cursorStyle: 'bar',
+            scrollback: 20000,
+            allowProposedApi: true
+          });
+          var fitAddon = new FitAddon.FitAddon();
+          var serializeAddon = new SerializeAddon.SerializeAddon();
+          term.loadAddon(fitAddon);
+          term.loadAddon(serializeAddon);
+          term.open(container);
+
+          var deviceId = localStorage.getItem('pi-device-id');
+          if (!deviceId) {
+            deviceId = crypto.randomUUID().slice(0, 8);
+            localStorage.setItem('pi-device-id', deviceId);
+          }
+          var savedState = sessionStorage.getItem('pi-term-' + deviceId);
+          if (savedState) term.write(savedState);
+
+          var ws = null;
+          var sentDeviceId = false;
+          var hasConnected = false;
+          var connecting = false;
+          var reconnectTimer = null;
+          var reconnectDelay = 500;
+          var lastReconnectAt = 0;
+
+          var wakeLock = null;
+          var fitTimer = null;
+
+          var ctrlActive = false;
+          var altActive = false;
+
+          var selectMode = false;
+          var touchState = null;
+          var longPressTimer = null;
+          var lastSelectPos = [1, 1];
+
+          var schemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+          function isDark() { return schemeMq.matches; }
+
+          function showStatus(msg) { statusEl.textContent = msg; statusEl.style.display = 'block'; }
+          function hideStatus() { statusEl.style.display = 'none'; }
+          function applyScheme() { term.options.theme = isDark() ? DARK_THEME : LIGHT_THEME; }
+
+          function sendInput(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(INPUT_PREFIX + data);
+          }
+          function sendResize(cols, rows) {
+            if (ws && ws.readyState === WebSocket.OPEN && cols > 0 && rows > 0)
+              ws.send(RESIZE_PREFIX + JSON.stringify({ columns: cols, rows: rows }));
+          }
+          function resetMods() {
+            ctrlActive = false;
+            altActive = false;
+            btnCtrl.classList.remove('mod-active');
+            btnAlt.classList.remove('mod-active');
+          }
+          function doFit() {
+            if (window.visualViewport) document.body.style.height = window.visualViewport.height + 'px';
+            try { fitAddon.fit(); } catch(e) {}
+          }
+          function scheduleFit() {
+            clearTimeout(fitTimer);
+            fitTimer = setTimeout(doFit, 100);
+          }
+          function acquireWakeLock() {
+            if (wakeLock || !('wakeLock' in navigator)) return;
+            navigator.wakeLock.request('screen').then(function(wl) {
+              wakeLock = wl;
+              wl.addEventListener('release', function() { wakeLock = null; });
+            }).catch(function() {});
+          }
+          function touchToCell(x, y) {
+            var s = container.querySelector('.xterm-screen');
+            if (!s) return [1, 1];
+            var r = s.getBoundingClientRect();
+            return [
+              Math.max(1, Math.min(term.cols, Math.floor((x - r.left) / (r.width / term.cols)) + 1)),
+              Math.max(1, Math.min(term.rows, Math.floor((y - r.top) / (r.height / term.rows)) + 1))
+            ];
+          }
+          function sendMouseEvt(btn, col, row, up) {
+            sendInput('\x1b[<' + btn + ';' + col + ';' + row + (up ? 'm' : 'M'));
+          }
+
+          function scheduleReconnect() {
+            if (reconnectTimer) return;
+            reconnectTimer = setTimeout(function() {
+              reconnectTimer = null;
+              connect();
+            }, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, 5000);
+          }
+          function reconnectNow() {
+            if (ws && ws.readyState === WebSocket.OPEN) return;
+            var now = Date.now();
+            if (now - lastReconnectAt < RECONNECT_COOLDOWN) return;
+            lastReconnectAt = now;
+            if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+            reconnectDelay = 500;
+            connect();
+          }
+          function connect() {
+            if (connecting) return;
+            if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+            connecting = true;
+            showStatus('Reconnecting\u2026');
+            fetch('/token')
+              .then(function(r) {
+                if (!r.ok) throw new Error(r.status);
+                return r.json();
+              })
+              .then(function(data) {
+                if (ws) { ws.onclose = null; ws.onerror = null; ws.close(); }
+                var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                ws = new WebSocket(proto + '//' + location.host + '/ws?token=' + data.token, ['tty']);
+                ws.binaryType = 'arraybuffer';
+                sentDeviceId = false;
+                ws.onopen = function() {
+                  connecting = false;
+                  reconnectDelay = 500;
+                  hideStatus();
+                  acquireWakeLock();
+                  try { fitAddon.fit(); } catch(e) {}
+                  ws.send(JSON.stringify({ columns: term.cols || 80, rows: term.rows || 24 }));
+                };
+                ws.onmessage = function(ev) {
+                  var raw = new Uint8Array(ev.data);
+                  var cmd = raw[0];
+                  var payload = raw.slice(1);
+                  if (cmd === CMD_OUTPUT) {
+                    if (!sentDeviceId) {
+                      var text = new TextDecoder().decode(payload);
+                      if (text.indexOf('READY') !== -1) {
+                        sentDeviceId = true;
+                        if (hasConnected) term.reset();
+                        hasConnected = true;
+                        sendInput(deviceId + ' ' + (isDark() ? 'dark' : 'light') + '\r');
+                        return;
+                      }
+                    }
+                    term.write(payload);
+                  } else if (cmd === CMD_TITLE) {
+                    document.title = new TextDecoder().decode(payload) || 'pi';
+                  }
+                };
+                ws.onclose = function() {
+                  connecting = false;
+                  showStatus('Reconnecting\u2026');
+                  scheduleReconnect();
+                };
+                ws.onerror = function() {};
+              })
+              .catch(function() {
+                connecting = false;
+                showStatus('Reconnecting\u2026');
+                scheduleReconnect();
+              });
+          }
+
+          term.parser.registerOscHandler(52, function(data) {
+            var parts = data.split(';');
+            if (parts.length < 2) return true;
+            var b64 = parts.slice(1).join(';');
+            if (b64 && b64 !== '?') {
+              try {
+                navigator.clipboard.writeText(atob(b64)).then(function() {
+                  showStatus('Copied');
+                  setTimeout(hideStatus, 1000);
+                }).catch(function() {});
+              } catch(e) {}
+            }
+            return true;
+          });
+
+          term.onData(function(data) {
+            if ((ctrlActive || altActive) && data.length === 1) {
+              var ch = data;
+              var applied = false;
+              if (ctrlActive) {
+                var code = data.toLowerCase().charCodeAt(0);
+                if (code >= 97 && code <= 122) { ch = String.fromCharCode(code - CTRL_OFFSET); applied = true; }
+              }
+              if (altActive) { ch = '\x1b' + ch; applied = true; }
+              if (applied) { sendInput(ch); resetMods(); }
+              else { resetMods(); sendInput(data); }
+            } else {
+              sendInput(data);
+            }
+          });
+          term.onResize(function(size) { sendResize(size.cols, size.rows); });
+
+          function handleButton(btn) {
+            if (btn.dataset.action === 'copy') {
+              sendMouseEvt(0, lastSelectPos[0], lastSelectPos[1], true);
+              selectMode = false;
+              hideStatus();
+              return;
+            }
+            if (btn.dataset.action === 'paste') {
+              navigator.clipboard.readText().then(function(text) { if (text) sendInput(text); }).catch(function() {
+                showStatus('Pasting from tmux buffer');
+                setTimeout(hideStatus, 1500);
+                sendInput('\x02]');
+              });
+              return;
+            }
+            if (btn.dataset.mod === 'ctrl') { ctrlActive = !ctrlActive; btnCtrl.classList.toggle('mod-active', ctrlActive); return; }
+            if (btn.dataset.mod === 'alt') { altActive = !altActive; btnAlt.classList.toggle('mod-active', altActive); return; }
+            if (btn.dataset.ctrl) {
+              var code = btn.dataset.ctrl.charCodeAt(0) - CTRL_OFFSET;
+              sendInput(altActive ? '\x1b' + String.fromCharCode(code) : String.fromCharCode(code));
+            } else if (btn.dataset.key) {
+              var seq = KEY_MAP[btn.dataset.key] || '';
+              if (altActive && !seq.startsWith('\x1b[')) seq = '\x1b' + seq;
+              sendInput(seq);
+            }
+            resetMods();
+          }
+          toolbar.addEventListener('pointerdown', function(e) { e.preventDefault(); });
+          toolbar.addEventListener('click', function(e) { var btn = e.target.closest('button'); if (btn) handleButton(btn); });
+
+          container.addEventListener('touchstart', function(e) {
+            if (selectMode) e.preventDefault();
+            if (e.touches.length === 1) {
+              var t = e.touches[0];
+              touchState = { mode: 'pending', sx: t.clientX, sy: t.clientY, x: t.clientX, y: t.clientY, accum: 0 };
+              if (!selectMode) {
+                longPressTimer = setTimeout(function() {
+                  longPressTimer = null;
+                  selectMode = true;
+                  touchState.mode = 'select';
+                  var sc = touchToCell(touchState.sx, touchState.sy);
+                  sendMouseEvt(0, sc[0], sc[1], false);
+                  showStatus('Selecting\u2026');
+                }, LONG_PRESS_MS);
+              }
+            }
+          }, { passive: false });
+          container.addEventListener('touchmove', function(e) {
+            if (!touchState || e.touches.length !== 1) {
+              if (touchState) { touchState = null; if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
+              return;
+            }
+            e.preventDefault();
+            var t = e.touches[0];
+            touchState.x = t.clientX;
+            touchState.y = t.clientY;
+            if (selectMode) {
+              if (touchState.mode === 'pending' && (Math.abs(t.clientX - touchState.sx) > MOVE_THRESHOLD || Math.abs(t.clientY - touchState.sy) > MOVE_THRESHOLD)) {
+                touchState.mode = 'select';
+                var sc = touchToCell(touchState.sx, touchState.sy);
+                sendMouseEvt(0, sc[0], sc[1], false);
+              }
+              if (touchState.mode === 'select') {
+                var c = touchToCell(t.clientX, t.clientY);
+                sendMouseEvt(MOUSE_DRAG, c[0], c[1], false);
+              }
+            } else {
+              if (longPressTimer && (Math.abs(t.clientX - touchState.sx) > MOVE_THRESHOLD || Math.abs(t.clientY - touchState.sy) > MOVE_THRESHOLD)) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+              }
+              touchState.accum += touchState.sy - t.clientY;
+              touchState.sy = t.clientY;
+              while (touchState.accum >= SCROLL_PX) { sendInput('\x1b[<65;1;1M'); touchState.accum -= SCROLL_PX; }
+              while (touchState.accum <= -SCROLL_PX) { sendInput('\x1b[<64;1;1M'); touchState.accum += SCROLL_PX; }
+            }
+          }, { passive: false });
+          container.addEventListener('touchend', function(e) {
+            if (selectMode) e.preventDefault();
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            if (!touchState) return;
+            if (selectMode && touchState.mode === 'select') {
+              lastSelectPos = touchToCell(touchState.x, touchState.y);
+            } else if (selectMode && touchState.mode === 'pending') {
+              selectMode = false;
+              hideStatus();
+            }
+            touchState = null;
+          }, { passive: false });
+
+          applyScheme();
+          schemeMq.addEventListener('change', function() {
+            applyScheme();
+            if (ws && ws.readyState === WebSocket.OPEN && sentDeviceId)
+              sendInput(isDark() ? '\x1b[15;3~' : '\x1b[17;3~');
+          });
+          window.addEventListener('resize', scheduleFit);
+          if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
+          document.addEventListener('visibilitychange', function() { if (!document.hidden) { reconnectNow(); acquireWakeLock(); } });
+          window.addEventListener('online', reconnectNow);
+          window.addEventListener('focus', reconnectNow);
+          container.addEventListener('click', function() { term.scrollToBottom(); term.focus(); acquireWakeLock(); });
+          window.addEventListener('beforeunload', function() {
+            try { sessionStorage.setItem('pi-term-' + deviceId, serializeAddon.serialize()); } catch(e) {}
+          });
+
+          scheduleFit();
+          connect();
+          term.focus();
+        })();
+      </script>
+    </body>
+    </html>
