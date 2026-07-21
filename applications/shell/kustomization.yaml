@@ -3,12 +3,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - rbac.yaml
-  - middleware.yaml
+  - known-hosts.yaml
+  - secrets.sops.yaml
   - auth/
-  - configmap/
-  - deployment.yaml
   - tmux/
-  - ingress.yaml
-  - pvc.yaml
-  - service.yaml
-  - shell-secrets.sops.yaml
+  - ttyd/

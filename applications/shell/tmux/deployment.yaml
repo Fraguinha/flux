@@ -37,6 +37,7 @@ spec:
                 -o PermitRootLogin=prohibit-password \
                 -o PasswordAuthentication=no \
                 -o AuthorizedKeysFile=/etc/ssh/keys/authorized_keys \
+                -o AcceptEnv=COLOR_SCHEME \
                 -o SetEnv=LANG=C.UTF-8
           env:
             - name: LANG
@@ -58,7 +59,7 @@ spec:
               mountPath: /root/.pi/agent/settings.json
               subPath: settings.json
               readOnly: true
-            - name: shell-config
+            - name: git-config
               mountPath: /opt/bin/update-theme
               subPath: update-theme.sh
               readOnly: true
@@ -95,18 +96,25 @@ spec:
           projected:
             sources:
               - configMap:
-                  name: shell-config
+                  name: shell-tmux-config
                   items:
                     - key: AGENTS.md
                       path: AGENTS.md
                     - key: settings.json
                       path: settings.json
+        - name: git-config
+          projected:
+            sources:
+              - configMap:
+                  name: shell-tmux-dotfiles
+                  items:
+                    - key: .gitconfig
+                      path: .gitconfig
+                    - key: .tmux.conf
+                      path: .tmux.conf
                     - key: update-theme.sh
                       path: update-theme.sh
                       mode: 0755
-        - name: git-config
-          configMap:
-            name: shell-dotfiles
         - name: ssh
           projected:
             defaultMode: 0600
@@ -121,7 +129,7 @@ spec:
                     - key: id_ed25519.pub
                       path: authorized_keys
               - configMap:
-                  name: shell-dotfiles
+                  name: shell-ssh-known-hosts
                   items:
                     - key: ssh_known_hosts
                       path: known_hosts

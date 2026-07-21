@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shell-ttyd-script
+  namespace: shell
+data:
+  shell.sh: |
+    #!/bin/sh
+    printf 'READY\n'
+    stty -echo
+    read -r DEVICE_ID COLOR_SCHEME
+    stty echo
+    clear
+    DEVICE_ID=$$(printf "%s" "$$DEVICE_ID" | tr -cd 'a-zA-Z0-9')
+    [ -z "$$DEVICE_ID" ] && DEVICE_ID="default"
+    COLOR_SCHEME=$$(printf "%s" "$$COLOR_SCHEME" | tr -cd 'a-z')
+    [ "$$COLOR_SCHEME" != "light" ] && COLOR_SCHEME="dark"
+    export COLOR_SCHEME
+    exec ssh -i /root/.ssh/id_ed25519 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/root/.ssh/known_hosts -o SendEnv=COLOR_SCHEME -p 2222 -t root@shell-tmux \
+      "export PATH=/usr/local/bin:\$$PATH LANG=C.UTF-8; exec tmux -u new-session -As shell-$${DEVICE_ID}"

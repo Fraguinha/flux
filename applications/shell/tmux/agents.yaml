@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shell-tmux-config
+  namespace: shell
+data:
+  AGENTS.md: |
+    # Global Agent Instructions
+
+    ## Environment
+    - You are running inside a container on Kubernetes.
+    - The container runs Alpine Linux with Node.js 24.
+    - If you need to modify your own configuration files, do it via the configmap and volumeMounts. Do not modify the files directly.
+
+    ## Flux Repository
+    - Remote: `git@github.com:Fraguinha/flux.git`
+    - Clone it if not already present. This repo contains all cluster manifests.
+    - Structure:
+      - `applications/` — app deployments (shell, home-assistant, payments, etc.)
+      - `infrastructure/` — cluster infrastructure (traefik, longhorn, cert-manager, monitoring, etc.)
+      - `clusters/` — Flux kustomization entry points
+    - This container's own config lives in `applications/shell/tmux/configmap.yaml`
+
+    ## Kubernetes Conventions
+    - All manifests use Flux; never `kubectl apply` directly. Prefer HelmRelease CRDs; never raw Helm commands
+    - Secrets must use SOPS, never plain ConfigMaps
+
+    ## Programming Conventions
+    - Use Java (latest LTS) with latest Spring Boot unless otherwise specified
+    - Never add comments or javadocs
+
+    ## Git Commit Conventions
+    `<type>: <lowercase imperative description, no period, <=50 chars ideal / 72 max>`
+
+    Types: feat - fix - refactor - test - docs - chore - perf - ci - style - build
+
+    Rules:
+    - One logical change per commit. Multi-module changes for one reason = one commit.
+    - No scopes: `feat: description`, not `feat(scope): description`.
+    - Never add body, footer or Co-authored-by. Sole exception: breaking changes use `!` after type and a `BREAKING CHANGE:` body.
+    - Never commit secrets, tokens, or credentials.
+    - Always rebase against origin/main before every push.
+    - Always use --force-with-lease when you need to force push. Never use --force.
+
+  settings.json: |
+    {
+      "theme": "system",
+      "lastChangelogVersion": "0.80.10",
+      "defaultProvider": "github-copilot",
+      "defaultModel": "claude-opus-4.6",
+      "defaultThinkingLevel": "xhigh",
+      "steeringMode": "all",
+      "followUpMode": "all",
+      "enableInstallTelemetry": false,
+      "enableAnalytics": false,
+      "collapseChangelog": true,
+      "packages": [
+        {
+          "source": "npm:pi-web-access",
+          "skills": []
+        }
+      ]
+    }
