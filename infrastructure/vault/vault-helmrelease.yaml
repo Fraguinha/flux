@@ -1,0 +1,73 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vault-helmrelease
+  namespace: flux-system
+spec:
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: vault
+      version: "0.29.1"
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+  interval: 1m
+  releaseName: vault
+  storageNamespace: vault
+  targetNamespace: vault
+  values:
+    global:
+      enabled: true
+      tlsDisable: true
+    injector:
+      enabled: false
+    server:
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 50m
+        limits:
+          memory: 512Mi
+      dataStorage:
+        enabled: true
+        size: 5Gi
+        storageClass: longhorn-single
+      standalone:
+        enabled: false
+      ha:
+        enabled: true
+        replicas: 3
+        raft:
+          enabled: true
+          setNodeId: true
+          config: |
+            ui = true
+
+            listener "tcp" {
+              tls_disable = 1
+              address = "[::]:8200"
+              cluster_address = "[::]:8201"
+            }
+
+            storage "raft" {
+              path = "/vault/data"
+            }
+
+            service_registration "kubernetes" {}
+      authDelegator:
+        enabled: true
+    ui:
+      enabled: true
+      serviceType: ClusterIP
+    csi:
+      enabled: false
