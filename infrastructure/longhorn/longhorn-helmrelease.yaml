@@ -27,10 +27,12 @@ spec:
         name: longhorn
   values:
     defaultSettings:
-      autoCleanupWhenDeleteBackup: false
+      autoCleanupWhenDeleteBackup: true
       defaultReplicaCount: 2
       replicaAutoBalance: best-effort
       replicaSoftAntiAffinity: true
+      removeSnapshotsDuringFilesystemTrim: true
+      snapshotMaxCount: 50
       storageOverProvisioningPercentage: 200
     persistence:
       defaultClass: true

@@ -13,7 +13,7 @@ data:
       enabled: true
       persistence:
         enabled: true
-        storageClassName: longhorn-single
+        storageClassName: longhorn
         size: 1Gi
       deploymentStrategy:
         type: Recreate
@@ -23,14 +23,45 @@ data:
         - victoriametrics-metrics-datasource
 
     vlsingle:
+      enabled: false
+    vlcluster:
       enabled: true
       spec:
-        retentionPeriod: 30d
-        storage:
-          storageClassName: longhorn-single
-          resources:
-            requests:
-              storage: 10Gi
+        vlstorage:
+          replicaCount: 2
+          retentionPeriod: 30d
+          storage:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: longhorn-single
+                resources:
+                  requests:
+                    storage: 10Gi
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vlstorage
+        vlselect:
+          replicaCount: 2
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vlselect
+        vlinsert:
+          replicaCount: 2
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vlinsert
     vlagent:
       enabled: true
       spec:
@@ -44,18 +75,57 @@ data:
             - kubernetes.pod_name
             - kubernetes.pod_namespace
     vmsingle:
+      enabled: false
+    vmcluster:
       enabled: true
       spec:
-        storage:
-          storageClassName: longhorn
-          resources:
-            requests:
-              storage: 30Gi
+        replicationFactor: 2
+        vmstorage:
+          replicaCount: 2
+          storage:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: longhorn-single
+                resources:
+                  requests:
+                    storage: 30Gi
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vmstorage
+        vmselect:
+          replicaCount: 2
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vmselect
+        vminsert:
+          replicaCount: 2
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vminsert
 
     vmagent:
       enabled: true
       spec:
-        replicaCount: 1
+        replicaCount: 2
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: vmagent
     vmalert:
       enabled: true
       spec:

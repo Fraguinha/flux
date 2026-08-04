@@ -5,6 +5,13 @@ metadata:
 spec:
   statefulSet:
     pod:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              tailscale.com/parent-resource: ts-proxies
       tailscaleContainer:
         securityContext:
           capabilities:

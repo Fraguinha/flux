@@ -10,7 +10,8 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      backoffLimit: 3
+      backoffLimit: 5
+      activeDeadlineSeconds: 600
       template:
         spec:
           serviceAccountName: vault-snapshot

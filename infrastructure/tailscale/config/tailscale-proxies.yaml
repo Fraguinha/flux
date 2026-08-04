@@ -5,3 +5,4 @@ metadata:
 spec:
   type: egress
   replicas: 3
+  proxyClass: default-proxy

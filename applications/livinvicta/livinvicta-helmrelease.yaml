@@ -27,3 +27,44 @@ spec:
   values:
     ingress:
       externalDnsTarget: ${PUBLIC_IPS}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: backend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: backend
+              spec:
+                template:
+                  spec:
+                    topologySpreadConstraints:
+                      - maxSkew: 1
+                        topologyKey: kubernetes.io/hostname
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            app.kubernetes.io/instance: livinvicta
+                            app.kubernetes.io/component: backend
+          - target:
+              kind: Deployment
+              name: frontend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: frontend
+              spec:
+                template:
+                  spec:
+                    topologySpreadConstraints:
+                      - maxSkew: 1
+                        topologyKey: kubernetes.io/hostname
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            app.kubernetes.io/instance: livinvicta
+                            app.kubernetes.io/component: frontend
