@@ -31,14 +31,6 @@ data:
           resources:
             requests:
               storage: 10Gi
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 64Mi
-
     vlagent:
       enabled: true
       spec:
@@ -51,14 +43,6 @@ data:
             - kubernetes.container_name
             - kubernetes.pod_name
             - kubernetes.pod_namespace
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 64Mi
-
     vmsingle:
       enabled: true
       spec:
@@ -72,14 +56,6 @@ data:
       enabled: true
       spec:
         replicaCount: 1
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 64Mi
-
     vmalert:
       enabled: true
       spec:
@@ -91,14 +67,6 @@ data:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/name: vmalert
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 64Mi
-
     alertmanager:
       enabled: true
       spec:
@@ -110,13 +78,6 @@ data:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/name: vmalertmanager
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 64Mi
         secrets:
           - monitoring-smtp-secrets
       config:
