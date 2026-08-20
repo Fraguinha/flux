@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-unseal
+  namespace: vault
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      activeDeadlineSeconds: 300
+      template:
+        spec:
+          serviceAccountName: vault-unseal
+          containers:
+            - name: unseal
+              image: hashicorp/vault:1.19.4
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  for i in 0 1 2; do
+                    VAULT_ADDR="http://vault-${i}.vault-internal.vault.svc.cluster.local:8200"
+                    export VAULT_ADDR
+
+                    vault status > /dev/null 2>&1
+                    rc=$?
+
+                    if [ $rc -eq 2 ]; then
+                      echo "vault-${i} is sealed, unsealing..."
+                      for key in $VAULT_UNSEAL_KEYS; do
+                        vault operator unseal "$key" > /dev/null 2>&1 || true
+                      done
+                    elif [ $rc -eq 0 ]; then
+                      echo "vault-${i} is already unsealed"
+                    else
+                      echo "vault-${i} is unreachable"
+                    fi
+                  done
+              env:
+                - name: VAULT_UNSEAL_KEYS
+                  valueFrom:
+                    secretKeyRef:
+                      name: vault-unseal-keys
+                      key: VAULT_UNSEAL_KEYS
+              resources:
+                requests:
+                  memory: 32Mi
+                  cpu: 10m
+                limits:
+                  memory: 64Mi
+          restartPolicy: OnFailure

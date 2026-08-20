@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: system-upgrade
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-cpu-limit
+  namespace: system-upgrade
+spec:
+  limits:
+    - default:
+        memory: 1Gi
+      defaultRequest:
+        cpu: 10m
+        memory: 64Mi
+      type: Container

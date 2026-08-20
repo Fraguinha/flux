@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-snapshot
+  namespace: vault
+spec:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 5
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          serviceAccountName: vault-snapshot
+          volumes:
+            - name: share
+              emptyDir: {}
+            - name: vault-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      path: token
+                      expirationSeconds: 3600
+                      audience: vault
+          initContainers:
+            - name: snapshot
+              image: hashicorp/vault:1.19.4
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  SA_TOKEN=$(cat /var/run/secrets/vault/token)
+                  export VAULT_TOKEN=$(vault write -field=token auth/kubernetes/login jwt=$SA_TOKEN role=vault-snapshot)
+                  vault operator raft snapshot save /share/vault.snap
+              env:
+                - name: VAULT_ADDR
+                  value: "http://vault-active.vault.svc.cluster.local:8200"
+              volumeMounts:
+                - mountPath: /share
+                  name: share
+                - mountPath: /var/run/secrets/vault
+                  name: vault-token
+                  readOnly: true
+          containers:
+            - name: upload
+              image: amazon/aws-cli:2.22.0
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  FILENAME="vault_$(date +%Y%m%d_%H%M%S).snap"
+                  aws --endpoint-url "$AWS_ENDPOINT_URL" \
+                    s3 cp /share/vault.snap "s3://${S3_BUCKET}/${FILENAME}"
+                  # Cleanup old snapshots (keep last 30)
+                  aws --endpoint-url "$AWS_ENDPOINT_URL" \
+                    s3 ls "s3://${S3_BUCKET}/" | sort | head -n -30 | \
+                    awk '{print $4}' | while read -r file; do
+                      aws --endpoint-url "$AWS_ENDPOINT_URL" \
+                        s3 rm "s3://${S3_BUCKET}/${file}"
+                    done
+              env:
+                - name: AWS_ENDPOINT_URL
+                  value: "http://garage.garage.svc.cluster.local:3900"
+                - name: S3_BUCKET
+                  value: "vault-snapshots"
+              envFrom:
+                - secretRef:
+                    name: vault-snapshot-s3
+              volumeMounts:
+                - mountPath: /share
+                  name: share
+          restartPolicy: OnFailure

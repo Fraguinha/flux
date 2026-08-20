@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: keel
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: keel
+  targetNamespace: keel
+  install:
+    remediation:
+      retries: 3
+    timeout: 10m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 10m
+  chart:
+    spec:
+      chart: keel
+      sourceRef:
+        kind: HelmRepository
+        name: keel
+  values:
+    polling:
+      enabled: true
+      defaultSchedule: "@every 1m"
+    helmProvider:
+      enabled: false
+    service:
+      enabled: false
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
