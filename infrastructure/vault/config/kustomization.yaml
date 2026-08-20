@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - vault-admin-rbac.yaml
+  - vault-snapshot-rbac.yaml
+  - vault-snapshot-cronjob.yaml
+  - vault-snapshot-s3-secrets.yaml
+  - vault-unseal-rbac.yaml
+  - vault-unseal-cronjob.yaml
+  - policy-external-secrets.yaml
+  - policy-vault-snapshot.yaml
+  - role-external-secrets.yaml
+  - role-vault-snapshot.yaml

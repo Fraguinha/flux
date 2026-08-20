@@ -1,0 +1,16 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: Policy
+metadata:
+  name: vault-snapshot
+  namespace: vault
+spec:
+  authentication:
+    path: kubernetes
+    role: vault-admin
+    serviceAccount:
+      name: vault-admin
+  type: acl
+  policy: |
+    path "sys/storage/raft/snapshot" {
+      capabilities = ["read"]
+    }

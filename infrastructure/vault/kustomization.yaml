@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - vault-source.yaml
+  - vault-helmrelease.yaml
+  - vault-tailscale-ingress.yaml
+  - vault-config-operator-source.yaml
+  - vault-config-operator-helmrelease.yaml

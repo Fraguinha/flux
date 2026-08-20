@@ -1,0 +1,21 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: KubernetesAuthEngineRole
+metadata:
+  name: vault-snapshot
+  namespace: vault
+spec:
+  authentication:
+    path: kubernetes
+    role: vault-admin
+    serviceAccount:
+      name: vault-admin
+  path: kubernetes
+  policies:
+    - vault-snapshot
+  targetServiceAccounts:
+    - vault-snapshot
+  targetNamespaces:
+    targetNamespaces:
+      - vault
+  audience: vault
+  tokenTTL: 3600
