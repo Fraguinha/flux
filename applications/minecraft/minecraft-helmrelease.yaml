@@ -1,0 +1,84 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: minecraft
+  targetNamespace: minecraft
+  storageNamespace: minecraft
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: minecraft
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: itzg-minecraft
+  values:
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 5Gi
+      limits:
+        memory: 5Gi
+    livenessProbe:
+      initialDelaySeconds: 300
+    readinessProbe:
+      initialDelaySeconds: 300
+    minecraftServer:
+      eula: "TRUE"
+      ops: "fraguinha"
+      version: "1.21.1"
+      type: "NEOFORGE"
+      difficulty: normal
+      memory: 4096M
+      jvmOpts: "--enable-native-access=ALL-UNNAMED"
+      motd: "Minecraft + Create"
+      levelType: "minecraft:normal"
+      serviceType: ClusterIP
+      modrinth:
+        projects:
+          - automodpack
+          - no-spider-
+          - no-cave-spider
+          - cc-tweaked
+          - create
+          - create-aeronautics
+          - create-avionics
+          - bellsandwhistles
+          - create-central-kitchen
+          - create-connected
+          - create-deco
+          - create-diesel-generators
+          - create-enchantment-industry
+          - interiors
+          - create-new-age
+          - create-power-loader
+          - create-steam-n-rails-1.21.1
+          - create-threaded-trains
+          - createaddition
+          - farmers-delight
+          - functional-storage
+          - jade
+          - jei
+          - slice-and-dice
+          - supplementaries
+        downloadDependencies: required
+        allowedVersionType: alpha
+    persistence:
+      storageClass: longhorn-single
+      dataDir:
+        enabled: true
+        Size: 10Gi
+    nodeSelector:
+      kubernetes.io/hostname: fraguinha

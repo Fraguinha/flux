@@ -1,0 +1,70 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stand
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: stand
+  targetNamespace: stand
+  storageNamespace: stand
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: stand-git
+      reconcileStrategy: Revision
+  values:
+    ingress:
+      externalDnsTarget: ${PUBLIC_IPS}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: backend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: backend
+              spec:
+                template:
+                  spec:
+                    topologySpreadConstraints:
+                      - maxSkew: 1
+                        topologyKey: kubernetes.io/hostname
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            app.kubernetes.io/instance: stand
+                            app.kubernetes.io/component: backend
+          - target:
+              kind: Deployment
+              name: frontend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: frontend
+              spec:
+                template:
+                  spec:
+                    topologySpreadConstraints:
+                      - maxSkew: 1
+                        topologyKey: kubernetes.io/hostname
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            app.kubernetes.io/instance: stand
+                            app.kubernetes.io/component: frontend
