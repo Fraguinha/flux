@@ -9,6 +9,7 @@ resources:
   - external-secrets/flux.yaml
   - external-secrets/config-flux.yaml
   - garage/flux.yaml
+  - keel/flux.yaml
   - kured/flux.yaml
   - longhorn/flux.yaml
   - system-upgrade/flux.yaml

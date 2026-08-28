@@ -6,4 +6,3 @@ resources:
   - external-dns-helmrelease.yaml
   - external-dns-secrets.yaml
   - public-ip-sync
-  - ptisp-image-automation.yaml

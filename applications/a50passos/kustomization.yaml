@@ -5,4 +5,3 @@ resources:
   - a50passos-git.yaml
   - a50passos-helmrelease.yaml
   - a50passos-secrets.yaml
-  - a50passos-image-automation.yaml

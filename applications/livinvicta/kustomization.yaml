@@ -5,4 +5,3 @@ resources:
   - livinvicta-git.yaml
   - livinvicta-helmrelease.yaml
   - livinvicta-secrets.yaml
-  - livinvicta-image-automation.yaml

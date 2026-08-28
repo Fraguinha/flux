@@ -5,4 +5,3 @@ resources:
   - payments-testing-git.yaml
   - payments-testing-helmrelease.yaml
   - payments-testing-secrets.yaml
-  - payments-testing-image-automation.yaml

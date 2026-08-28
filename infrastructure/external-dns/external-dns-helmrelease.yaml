@@ -29,7 +29,6 @@ spec:
     - kustomize:
         images:
           - name: fraguinha/ptisp-webhook-provider
-            digest: sha256:9994b03ce9a1dacec3fdd0f01768ff67d860165dc58b28501ad690c1dd94582c # {"$imagepolicy": "flux-system:ptisp-webhook-provider-policy:digest"}
         patches:
           - target:
               kind: Deployment

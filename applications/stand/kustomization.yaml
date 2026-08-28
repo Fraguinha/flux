@@ -5,4 +5,3 @@ resources:
   - stand-git.yaml
   - stand-helmrelease.yaml
   - stand-secrets.yaml
-  - stand-image-automation.yaml
