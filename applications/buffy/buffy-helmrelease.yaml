@@ -19,10 +19,11 @@ spec:
     timeout: 30m
   chart:
     spec:
-      chart: ./chart
+      chart: jellyfin/jellyfin
+      version: 3.2.0
       sourceRef:
-        kind: GitRepository
-        name: buffy-git
+        kind: HelmRepository
+        name: jellyfin/jellyfin-helm
       reconcileStrategy: Revision
   values:
     ingress:
