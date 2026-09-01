@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - default-ingress-dns-ttl.yaml
+  - default-resource-limits.yaml
+  - default-topology-spread.yaml

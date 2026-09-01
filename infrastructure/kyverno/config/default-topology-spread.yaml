@@ -1,0 +1,58 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: default-topology-spread
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: spread-by-component
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaceSelector:
+                matchLabels:
+                  policy.fraguinha.com/topology-spread: enabled
+              selector:
+                matchExpressions:
+                  - key: app.kubernetes.io/instance
+                    operator: Exists
+                  - key: app.kubernetes.io/component
+                    operator: Exists
+      mutate:
+        patchStrategicMerge:
+          spec:
+            +(topologySpreadConstraints):
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: DoNotSchedule
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: '{{ request.object.metadata.labels."app.kubernetes.io/instance" }}'
+                    app.kubernetes.io/component: '{{ request.object.metadata.labels."app.kubernetes.io/component" }}'
+    - name: spread-by-instance
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaceSelector:
+                matchLabels:
+                  policy.fraguinha.com/topology-spread: enabled
+              selector:
+                matchExpressions:
+                  - key: app.kubernetes.io/instance
+                    operator: Exists
+                  - key: app.kubernetes.io/component
+                    operator: DoesNotExist
+      mutate:
+        patchStrategicMerge:
+          spec:
+            +(topologySpreadConstraints):
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: DoNotSchedule
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: '{{ request.object.metadata.labels."app.kubernetes.io/instance" }}'

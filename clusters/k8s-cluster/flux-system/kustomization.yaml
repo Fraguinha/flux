@@ -1,0 +1,93 @@
+resources:
+- gotk-components.yaml
+- gotk-sync.yaml
+
+patches:
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: source-controller
+        namespace: flux-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                resources:
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                  limits:
+                    memory: 512Mi
+    target:
+      kind: Deployment
+      name: source-controller
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: kustomize-controller
+        namespace: flux-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                args:
+                  - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local./
+                  - --watch-all-namespaces=true
+                  - --log-level=info
+                  - --log-encoding=json
+                  - --enable-leader-election
+                  - --concurrent=10
+                  - --requeue-dependency=5s
+                resources:
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                  limits:
+                    memory: 512Mi
+    target:
+      kind: Deployment
+      name: kustomize-controller
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: helm-controller
+        namespace: flux-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                resources:
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                  limits:
+                    memory: 512Mi
+    target:
+      kind: Deployment
+      name: helm-controller
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: notification-controller
+        namespace: flux-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                resources:
+                  requests:
+                    cpu: 10m
+                    memory: 32Mi
+                  limits:
+                    memory: 512Mi
+    target:
+      kind: Deployment
+      name: notification-controller
