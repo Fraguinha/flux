@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: a50passos-amd64
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: a50passos-amd64
+  targetNamespace: actions-runner
+  storageNamespace: actions-runner
+  serviceAccountName: helm-infrastructure
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: gha-runner-scale-set
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner
+  values:
+    githubConfigUrl: https://github.com/fraguinha/a50passos.com
+    githubConfigSecret: actions-runner-secrets
+    minRunners: 0
+    maxRunners: 1
+    containerMode:
+      type: dind
+    template:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: amd64
+        containers:
+          - name: runner
+            image: ghcr.io/actions/actions-runner:latest
+            command: ["/home/runner/run.sh"]
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi

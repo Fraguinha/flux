@@ -1,0 +1,90 @@
+name: update-components
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-components
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+      - name: Set up Flux
+        uses: fluxcd/flux2/action@main
+        with:
+          version: latest
+      - name: Update manifests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          flux install --export > clusters/k8s-cluster/flux-system/gotk-components.yaml
+          release=$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/rancher/system-upgrade-controller/releases/latest)
+          for asset in crd.yaml system-upgrade-controller.yaml; do
+            url=$(jq -r --arg asset "$asset" '.assets[] | select(.name == $asset) | .browser_download_url' <<<"$release")
+            digest=$(jq -r --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest' <<<"$release")
+            test -n "$url"
+            test "$url" != null
+            curl --fail --location --silent --show-error "$url" --output "/tmp/$asset"
+            printf '%s  %s\n' "${digest#sha256:}" "/tmp/$asset" | sha256sum -c -
+          done
+          mv /tmp/crd.yaml infrastructure/system-upgrade/crd.yaml
+          mv /tmp/system-upgrade-controller.yaml infrastructure/system-upgrade/controller.yaml
+          sed -i 's/^    type: Recreate$/    type: RollingUpdate/' \
+            infrastructure/system-upgrade/controller.yaml
+          tags=$(curl --fail --silent --show-error 'https://hub.docker.com/v2/repositories/alpine/k8s/tags?page_size=100')
+          k8s_tag=$(jq -r '.results[].name' <<<"$tags" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          test -n "$k8s_tag"
+          sed -E -i "s#alpine/k8s:[0-9]+\.[0-9]+\.[0-9]+#alpine/k8s:$k8s_tag#g" \
+            infrastructure/external-dns/public-ip-sync/cronjob.yaml \
+            infrastructure/external-dns/public-ip-sync/daemonset.yaml \
+            infrastructure/system-upgrade/config/maintenance-window.yaml
+          kubectl_tags=$(curl --fail --silent --show-error 'https://hub.docker.com/v2/repositories/rancher/kubectl/tags?page_size=100')
+          kubectl_tag=$(jq -r '.results[].name' <<<"$kubectl_tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          test -n "$kubectl_tag"
+          sed -E -i "s#rancher/kubectl:v[0-9]+\.[0-9]+\.[0-9]+#rancher/kubectl:$kubectl_tag#g" \
+            infrastructure/system-upgrade/controller.yaml \
+            infrastructure/system-upgrade/kustomization.yaml
+          artifacts=$(curl --fail --silent --show-error https://authlib-injector.yushi.moe/artifacts.json)
+          authlib_build=$(jq -r '.latest_build_number' <<<"$artifacts")
+          authlib_version=$(jq -r --argjson build "$authlib_build" '.artifacts[] | select(.build_number == $build) | .version' <<<"$artifacts")
+          authlib_url="https://authlib-injector.yushi.moe/artifact/$authlib_build/authlib-injector-$authlib_version.jar"
+          curl --fail --silent --show-error "$authlib_url" --output /tmp/authlib-injector.jar
+          authlib_sha256=$(sha256sum /tmp/authlib-injector.jar | cut -d' ' -f1)
+          sed -E -i "s#URL=https://authlib-injector.yushi.moe/artifact/[^[:space:]]+#URL=$authlib_url#" \
+            applications/minecraft/minecraft-helmrelease.yaml
+          sed -E -i "s#EXPECTED=[a-f0-9]+#EXPECTED=$authlib_sha256#" \
+            applications/minecraft/minecraft-helmrelease.yaml
+      - name: Commit updates
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add applications/minecraft/minecraft-helmrelease.yaml \
+            clusters/k8s-cluster/flux-system/gotk-components.yaml \
+            infrastructure/external-dns/public-ip-sync/cronjob.yaml \
+            infrastructure/external-dns/public-ip-sync/daemonset.yaml \
+            infrastructure/system-upgrade/config/maintenance-window.yaml \
+            infrastructure/system-upgrade/controller.yaml \
+            infrastructure/system-upgrade/crd.yaml \
+            infrastructure/system-upgrade/kustomization.yaml
+          git commit -m "chore: update cluster components"
+          git pull --rebase origin main
+          git push origin HEAD:main

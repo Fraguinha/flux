@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - actions-runner-secrets.yaml
+  - shell-amd64-helmrelease.yaml
+  - shell-arm64-helmrelease.yaml
+  - a50passos-amd64-helmrelease.yaml
+  - bestcarprice-amd64-helmrelease.yaml
+  - fraguinha-amd64-helmrelease.yaml
+  - livinvicta-amd64-helmrelease.yaml

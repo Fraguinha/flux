@@ -1,0 +1,42 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: runner-build-resources
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: limit-arm64-runner-builds
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - actions-runner
+              selector:
+                matchExpressions:
+                  - key: actions.github.com/scale-set-name
+                    operator: In
+                    values:
+                      - shell-arm64
+      mutate:
+        patchStrategicMerge:
+          spec:
+            initContainers:
+              - (name): dind
+                resources:
+                  requests:
+                    cpu: 500m
+                    memory: 1Gi
+                  limits:
+                    cpu: "1500m"
+                    memory: 3Gi
+            containers:
+              - (name): dind
+                resources:
+                  requests:
+                    cpu: 500m
+                    memory: 1Gi
+                  limits:
+                    cpu: "1500m"
+                    memory: 3Gi
