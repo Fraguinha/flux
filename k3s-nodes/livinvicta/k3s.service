@@ -1,0 +1,49 @@
+[Unit]
+Description=Lightweight Kubernetes
+Documentation=https://k3s.io
+Wants=network-online.target
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=notify
+EnvironmentFile=-/etc/default/%N
+EnvironmentFile=-/etc/sysconfig/%N
+EnvironmentFile=-/etc/systemd/system/k3s.service.env
+KillMode=process
+Delegate=yes
+User=root
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=1048576
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
+Restart=always
+RestartSec=5s
+ExecStartPre=-/sbin/modprobe br_netfilter
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/k3s \
+    server \
+	'--server' \
+	'https://100.109.87.68:6443' \
+	'--token' \
+	'REDACTED' \
+	'--node-ip' \
+	'100.67.26.88' \
+	'--node-external-ip' \
+	'100.67.26.88' \
+	'--flannel-iface' \
+	'tailscale0' \
+	'--write-kubeconfig-mode' \
+	'0644' \
+	'--disable' \
+	'servicelb' \
+	'--resolv-conf' \
+	'/etc/k3s-resolv.conf' \
+	'--kubelet-arg' \
+	'allowed-unsafe-sysctls=net.ipv4.ip_forward' \
+
