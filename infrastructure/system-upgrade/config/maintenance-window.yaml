@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: system-upgrade-maintenance-window
+  namespace: system-upgrade
+spec:
+  schedule: "*/5 * * * *"
+  timeZone: Europe/Lisbon
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 120
+      template:
+        spec:
+          serviceAccountName: system-upgrade
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          containers:
+            - name: maintenance-window
+              image: alpine/k8s:1.37.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -euc
+                - |
+                  hour=$(TZ=Europe/Lisbon date +%H)
+                  hour=${hour#0}
+                  [ -n "$hour" ] || hour=0
+                  if [ "$hour" -ge 7 ] || [ "$hour" -lt 1 ]; then
+                    state=enabled
+                  else
+                    state=disabled
+                  fi
+                  kubectl label nodes --all maintenance.fraguinha.com/system-upgrade="$state" --overwrite
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi

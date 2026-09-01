@@ -1,0 +1,61 @@
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: k3s-server
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  exclusive: true
+  cordon: true
+  channel: https://update.k3s.io/v1-release/channels/stable
+  jobActiveDeadlineSecs: 900
+  nodeSelector:
+    matchExpressions:
+      - key: maintenance.fraguinha.com/system-upgrade
+        operator: In
+        values:
+          - enabled
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+      operator: Exists
+    - key: node-role.kubernetes.io/etcd
+      effect: NoExecute
+      operator: Exists
+  serviceAccountName: system-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: k3s-agent
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  exclusive: true
+  channel: https://update.k3s.io/v1-release/channels/stable
+  jobActiveDeadlineSecs: 900
+  nodeSelector:
+    matchExpressions:
+      - key: maintenance.fraguinha.com/system-upgrade
+        operator: In
+        values:
+          - enabled
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  serviceAccountName: system-upgrade
+  prepare:
+    image: rancher/k3s-upgrade
+    args:
+      - prepare
+      - k3s-server
+  drain:
+    force: true
+    skipWaitForDeleteTimeout: 60
+  upgrade:
+    image: rancher/k3s-upgrade
