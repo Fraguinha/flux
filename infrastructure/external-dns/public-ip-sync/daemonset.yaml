@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: public-ip-annotator
+  namespace: external-dns
+spec:
+  selector:
+    matchLabels:
+      app: public-ip-annotator
+  template:
+    metadata:
+      labels:
+        app: public-ip-annotator
+    spec:
+      serviceAccountName: public-ip-sync
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: annotator
+          image: alpine/k8s:1.36.2
+          command:
+            - /bin/sh
+            - /scripts/annotate.sh
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: INTERVAL
+              value: "60"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: public-ip-sync-scripts

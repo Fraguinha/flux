@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minecraft-dns
+  namespace: minecraft
+  annotations:
+    external-dns.alpha.kubernetes.io/target: ${PUBLIC_IP_FRAGUINHA}
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: minecraft.fraguinha.com

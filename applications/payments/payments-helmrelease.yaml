@@ -1,0 +1,82 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: payments
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: payments
+  targetNamespace: payments
+  storageNamespace: payments
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: payments-git
+      reconcileStrategy: Revision
+  values:
+    image: fraguinha/a50passos.com-payments:latest
+    env:
+      - name: APP_BASE_URL
+        value: https://payments.a50passos.com
+      - name: MAIL_HOST
+        value: mail.a50passos.com
+      - name: MAIL_PORT
+        value: "587"
+      - name: MAIL_SMTP_AUTH
+        value: "true"
+      - name: MAIL_SMTP_STARTTLS
+        value: "true"
+      - name: MAIL_FROM
+        value: pagamentos@a50passos.com
+      - name: MONGODB_URI
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: MONGODB_URI
+      - name: MOLLIE_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: MOLLIE_API_KEY
+      - name: WEBHOOK_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: WEBHOOK_SECRET
+      - name: ADMIN_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: ADMIN_USERNAME
+      - name: ADMIN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: ADMIN_PASSWORD
+      - name: MAIL_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: MAIL_USERNAME
+      - name: MAIL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: payments-secrets
+            key: MAIL_PASSWORD
+    ingress:
+      externalDnsTarget: ${PUBLIC_IPS}
+      hosts:
+        - payments.a50passos.com
+      tls:
+        secretName: payments-tls-secret

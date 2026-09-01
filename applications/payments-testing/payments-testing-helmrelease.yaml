@@ -1,0 +1,86 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: payments-testing
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: payments-testing
+  targetNamespace: payments-testing
+  storageNamespace: payments-testing
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: payments-testing-git
+      reconcileStrategy: Revision
+  values:
+    image: fraguinha/a50passos.com-payments:testing
+    env:
+      - name: APP_BASE_URL
+        value: https://payments-testing.a50passos.com
+      - name: MANAGEMENT_ENDPOINTS
+        value: health,billing,reconciliation,invoice
+      - name: MAIL_HOST
+        value: mailpit
+      - name: MAIL_PORT
+        value: "1025"
+      - name: MAIL_SMTP_AUTH
+        value: "false"
+      - name: MAIL_SMTP_STARTTLS
+        value: "false"
+      - name: MAIL_FROM
+        value: pagamentos@a50passos.com
+      - name: MONGODB_URI
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: MONGODB_URI
+      - name: MOLLIE_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: MOLLIE_API_KEY
+      - name: WEBHOOK_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: WEBHOOK_SECRET
+      - name: ADMIN_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: ADMIN_USERNAME
+      - name: ADMIN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: ADMIN_PASSWORD
+      - name: VIEWER_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: VIEWER_USERNAME
+            optional: true
+      - name: VIEWER_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: payments-testing-secrets
+            key: VIEWER_PASSWORD
+            optional: true
+    ingress:
+      externalDnsTarget: ${PUBLIC_IPS}
+      hosts:
+        - payments-testing.a50passos.com
+      tls:
+        secretName: payments-testing-tls-secret

@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: default-ingress-dns-ttl
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: add-ttl
+      match:
+        any:
+          - resources:
+              kinds:
+                - Ingress
+              namespaceSelector:
+                matchLabels:
+                  policy.fraguinha.com/defaults: enabled
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            annotations:
+              +(external-dns.alpha.kubernetes.io/ttl): "60"

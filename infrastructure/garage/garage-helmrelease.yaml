@@ -1,0 +1,61 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: garage
+  targetNamespace: garage
+  storageNamespace: garage
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: garage
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: garage
+  values:
+    garage:
+      dbEngine: lmdb
+      replicationFactor: "1"
+      consistencyMode: consistent
+      compressionLevel: "1"
+      metadataAutoSnapshotInterval: "6h"
+      s3:
+        api:
+          region: garage
+          rootDomain: ".s3.garage.internal"
+        web:
+          rootDomain: ".web.garage.internal"
+
+    deployment:
+      kind: StatefulSet
+      replicaCount: 1
+
+    persistence:
+      enabled: true
+      meta:
+        storageClass: longhorn
+        size: 1Gi
+      data:
+        storageClass: longhorn
+        size: 20Gi
+
+    image:
+      repository: dxflrs/garage
+
+    monitoring:
+      metrics:
+        enabled: true

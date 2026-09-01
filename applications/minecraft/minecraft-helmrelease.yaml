@@ -1,0 +1,111 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: minecraft
+  targetNamespace: minecraft
+  storageNamespace: minecraft
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: minecraft
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: minecraft
+  values:
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 5Gi
+      limits:
+        memory: 5Gi
+    startupProbe:
+      enabled: true
+    livenessProbe:
+      initialDelaySeconds: 0
+    readinessProbe:
+      initialDelaySeconds: 0
+    initContainers:
+      - name: download-authlib-injector
+        image: alpine:3.20
+        command:
+          - sh
+          - -euc
+          - |
+            TARGET=/data/authlib-injector.jar
+            URL=https://authlib-injector.yushi.moe/artifact/56/authlib-injector-1.2.8.jar
+            EXPECTED=9c7f4343e6c82034958ffb48c14a2cb0c85928be7283103ce17da00c6d5a7b10
+            if [ -f "$TARGET" ] && echo "$EXPECTED  $TARGET" | sha256sum -c - >/dev/null 2>&1; then
+              echo "authlib-injector already present and verified ($URL)"
+              exit 0
+            fi
+            wget -O "$TARGET" "$URL"
+            echo "$EXPECTED  $TARGET" | sha256sum -c -
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+        volumeMounts:
+          - name: datadir
+            mountPath: /data
+    minecraftServer:
+      eula: "TRUE"
+      ops: "fraguinha"
+      version: "1.21.1"
+      type: "NEOFORGE"
+      difficulty: normal
+      memory: 4096M
+      onlineMode: true
+      jvmOpts: "-javaagent:/data/authlib-injector.jar=ely.by --enable-native-access=ALL-UNNAMED"
+      motd: "Minecraft + Create"
+      levelType: "minecraft:normal"
+      serviceType: ClusterIP
+      modrinth:
+        projects:
+          - automodpack
+          - no-spider-
+          - no-cave-spider
+          - cc-tweaked
+          - create
+          - bellsandwhistles
+          - create-central-kitchen
+          - create-connected
+          - create-deco
+          - create-diesel-generators
+          - create-enchantment-industry
+          - interiors
+          - create-new-age
+          - create-power-loader
+          - create-steam-n-rails-1.21.1
+          - create-threaded-trains
+          - createaddition
+          - farmers-delight
+          - functional-storage
+          - jade
+          - jei
+          - slice-and-dice
+          - supplementaries
+          - lithium
+        downloadDependencies: required
+        allowedVersionType: alpha
+    persistence:
+      storageClass: longhorn-single
+      dataDir:
+        enabled: true
+        Size: 10Gi
+    nodeSelector:
+      kubernetes.io/hostname: carolion

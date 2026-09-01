@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cert-manager/flux.yaml
+  - cert-manager/config-flux.yaml
+  - cnpg/flux.yaml
+  - cnpg/config-flux.yaml
+  - external-dns/flux.yaml
+  - garage/flux.yaml
+  - keel/flux.yaml
+  - kured/flux.yaml
+  - kyverno/flux.yaml
+  - kyverno/config-flux.yaml
+  - local-path/flux.yaml
+  - longhorn/flux.yaml
+  - longhorn/config-flux.yaml
+  - onepassword/flux.yaml
+  - onepassword/config-flux.yaml
+  - system-upgrade/flux.yaml
+  - system-upgrade/config-flux.yaml
+  - tailscale/flux.yaml
+  - tailscale/config-flux.yaml
+  - traefik/flux.yaml

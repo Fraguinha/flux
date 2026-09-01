@@ -1,0 +1,117 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: external-dns
+  targetNamespace: external-dns
+  storageNamespace: external-dns
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: external-dns
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+  values:
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroup: 1000
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: fraguinha/ptisp-webhook-provider
+          tag: latest
+    logLevel: info
+    extraArgs:
+      - --webhook-provider-url=http://127.0.0.1:8080/
+      - --webhook-provider-read-timeout=30s
+      - --webhook-provider-write-timeout=30s
+      - --txt-prefix=_edns.
+      - --ingress-class=traefik
+      - --no-resolve-service-load-balancer-hostname
+    policy: sync
+    sources:
+      - ingress
+    txtOwnerId: k8s-cluster
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: external-dns
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: external-dns
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: webhook
+                        $patch: delete
+                    initContainers:
+                      - name: webhook
+                        image: fraguinha/ptisp-webhook-provider:latest
+                        imagePullPolicy: Always
+                        restartPolicy: Always
+                        ports:
+                          - containerPort: 8080
+                        startupProbe:
+                          httpGet:
+                            path: /actuator/health/liveness
+                            port: 8080
+                          initialDelaySeconds: 15
+                          periodSeconds: 5
+                          failureThreshold: 24
+                        readinessProbe:
+                          httpGet:
+                            path: /actuator/health/readiness
+                            port: 8080
+                          initialDelaySeconds: 5
+                          periodSeconds: 5
+                          failureThreshold: 3
+                        livenessProbe:
+                          httpGet:
+                            path: /actuator/health/liveness
+                            port: 8080
+                          periodSeconds: 10
+                          failureThreshold: 5
+                        resources:
+                          requests:
+                            cpu: 10m
+                            memory: 192Mi
+                          limits:
+                            memory: 384Mi
+                        env:
+                          - name: SERVER_PORT
+                            value: "8080"
+                          - name: JAVA_TOOL_OPTIONS
+                            value: "-Xmx128m -Xms64m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -Xss256k -XX:MaxDirectMemorySize=10m -XX:ActiveProcessorCount=2"
+                        envFrom:
+                          - secretRef:
+                              name: external-dns-secrets
