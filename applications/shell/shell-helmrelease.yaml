@@ -26,38 +26,8 @@ spec:
         name: shell-git
       reconcileStrategy: Revision
   values:
+    rbac:
+      create: false
+      serviceAccountName: shell-admin
     ingress:
       externalDnsTarget: ${PUBLIC_IPS}
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              version: v1
-              kind: ServiceAccount
-              name: shell
-            patch: |-
-              $patch: delete
-              apiVersion: v1
-              kind: ServiceAccount
-              metadata:
-                name: shell
-          - target:
-              group: rbac.authorization.k8s.io
-              version: v1
-              kind: ClusterRoleBinding
-              name: shell-cluster-admin
-            patch: |-
-              $patch: delete
-              apiVersion: rbac.authorization.k8s.io/v1
-              kind: ClusterRoleBinding
-              metadata:
-                name: shell-cluster-admin
-          - target:
-              group: apps
-              version: v1
-              kind: Deployment
-              labelSelector: app.kubernetes.io/component=herdr
-            patch: |-
-              - op: replace
-                path: /spec/template/spec/serviceAccountName
-                value: shell-admin
