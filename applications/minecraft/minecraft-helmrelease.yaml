@@ -79,7 +79,7 @@ spec:
       modrinth:
         projects:
           - automodpack:release
-          - no-spider-:release
+          - no-spider:release
           - no-cave-spider:release
           - cc-tweaked:alpha
           - create:release
