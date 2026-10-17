@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-PT" class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f2e9">
+    <meta name="description" content="Uma forma simples de consultar a ementa da Desfolhada.">
+    <title>Desfolhada — Ementa</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#menu-content">Saltar para a ementa</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="wordmark" href="#top" aria-label="Desfolhada — início da ementa">
+          <svg class="brand-mark" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <path d="M22 37V19M22 29C9 29 7 19 8 11c9 0 14 6 14 18ZM22 22C22 10 29 5 37 6c1 9-5 16-15 16Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="m13 17 9 12M30 12l-8 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span class="wordmark-name">Desfolhada</span>
+        </a>
+        <span class="header-caption">A ementa, com calma.</span>
+      </div>
+    </header>
+    <main id="top" class="page-shell">
+      <section class="intro" aria-labelledby="menu-title">
+        <p class="eyebrow">À mesa</p>
+        <h1 id="menu-title">O que lhe<br>apetece hoje?</h1>
+        <p class="intro-copy">Escolha com tempo.<br>A ementa está mesmo aqui.</p>
+      </section>
+      <section class="menu-tools" aria-label="Pesquisar na ementa">
+        <div class="search-field" role="search">
+          <label class="sr-only" for="menu-search">Pesquisar na ementa</label>
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input id="menu-search" type="search" placeholder="O que procura?" autocomplete="off" spellcheck="false" aria-controls="menu-sections" aria-describedby="search-summary" disabled>
+          <button id="clear-search" class="icon-button" type="button" aria-label="Limpar pesquisa" hidden>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <p id="search-summary" class="search-summary" role="status" aria-live="polite" aria-atomic="true">A carregar a ementa…</p>
+      </section>
+      <div class="menu-layout">
+        <aside id="category-sidebar" class="category-sidebar" hidden>
+          <p class="nav-label">Explore a ementa</p>
+          <nav id="category-nav" class="category-nav" aria-label="Categorias"></nav>
+        </aside>
+        <section id="menu-content" class="menu-content" aria-label="Ementa" tabindex="-1" aria-busy="true">
+          <div id="menu-status" class="menu-state is-loading" role="status" aria-live="polite" aria-atomic="true">
+            <div class="state-mark" aria-hidden="true">
+              <svg viewBox="0 0 44 44" fill="none">
+                <path d="M22 37V19M22 29C9 29 7 19 8 11c9 0 14 6 14 18ZM22 22C22 10 29 5 37 6c1 9-5 16-15 16Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p id="state-eyebrow" class="state-eyebrow">Só um momento</p>
+            <h2 id="state-title" class="state-title">A preparar a ementa.</h2>
+            <p id="state-copy" class="state-copy">Estamos a carregar os artigos e os preços.</p>
+            <button id="retry-menu" class="text-button" type="button" hidden>Tentar novamente</button>
+            <button id="reset-search" class="text-button" type="button" hidden>Ver toda a ementa</button>
+          </div>
+          <div id="menu-sections" class="menu-sections"></div>
+          <noscript>
+            <div class="menu-state is-error">
+              <h2 class="state-title">É necessário ativar o JavaScript.</h2>
+              <p class="state-copy">Esta ementa precisa de JavaScript para apresentar os artigos. Ative-o nas definições do navegador e volte a abrir esta página.</p>
+            </div>
+          </noscript>
+        </section>
+      </div>
+      <footer class="site-footer">
+        <div class="footer-note">
+          <p id="menu-disclaimer">Versão simplificada e não oficial da ementa. Confirme preços e disponibilidade com o estabelecimento.</p>
+          <a id="source-link" class="source-link" target="_blank" rel="noopener noreferrer" aria-label="Consultar ementa original (abre numa nova janela)" hidden>
+            Consultar ementa original
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M5 15 15 5M5 5h10v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <p class="allergen-note">Para informações sobre alergénios, fale com o estabelecimento.</p>
+        </div>
+        <p id="snapshot-date" class="snapshot-date" hidden></p>
+      </footer>
+    </main>
+  </body>
+</html>

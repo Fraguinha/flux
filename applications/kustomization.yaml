@@ -5,6 +5,7 @@ resources:
   - a50passos/flux.yaml
   - bestcarprice/flux.yaml
   - buffy/flux.yaml
+  - desfolhada/flux.yaml
   - home-assistant/flux.yaml
   - livinvicta/flux.yaml
   - minecraft/flux.yaml
