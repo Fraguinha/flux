@@ -137,7 +137,7 @@
   }
 
   function validateMenu(data) {
-    if (!data || typeof data !== "object" || !Array.isArray(data.sections) || data.currency !== "EUR" || !httpUrl(data.sourceUrl)) throw invalidData();
+    if (!data || typeof data !== "object" || !Array.isArray(data.sections) || data.currency !== "EUR") throw invalidData();
     if (typeof data.name !== "string" || !plainText(data.name)) throw invalidData();
     for (const section of data.sections) {
       if (!section || typeof section.name !== "string" || !Array.isArray(section.categories)) throw invalidData();
@@ -386,9 +386,6 @@
     document.querySelector(".wordmark").setAttribute("aria-label", `${name} — início da ementa`);
     document.title = `${name} — Ementa`;
     document.querySelector('meta[name="description"]').content = `Uma forma simples de consultar a ementa de ${name}.`;
-    const sourceLink = document.getElementById("source-link");
-    sourceLink.href = httpUrl(menu.sourceUrl);
-    sourceLink.hidden = false;
     const snapshot = document.getElementById("snapshot-date");
     const updatedAt = plainText(menu.updatedAt);
     snapshot.hidden = !updatedAt;
