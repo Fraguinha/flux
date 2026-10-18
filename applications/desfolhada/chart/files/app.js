@@ -17,8 +17,203 @@
   const sidebar = document.getElementById("category-sidebar");
   const navigation = document.getElementById("category-nav");
   const layout = document.querySelector(".menu-layout");
-  const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-  const integers = new Intl.NumberFormat("pt-PT");
+  const languageSwitcher = document.getElementById("language-switcher");
+  const languageStorageKey = "desfolhada-language";
+  const languageFiles = { es: "./menu-es.json", fr: "./menu-fr.json", en: "./menu-en.json" };
+  const interfaces = {
+    pt: {
+      locale: "pt-PT",
+      menuLabel: "Ementa",
+      languageLabel: "Idioma da ementa",
+      skipLink: "Saltar para a ementa",
+      caption: "A ementa, com calma.",
+      eyebrow: "À mesa",
+      heroFirst: "O que lhe",
+      heroSecond: "apetece hoje?",
+      introFirst: "Escolha com tempo.",
+      introSecond: "A ementa está mesmo aqui.",
+      searchLabel: "Pesquisar na ementa",
+      searchPlaceholder: "O que procura?",
+      clearSearch: "Limpar pesquisa",
+      filterLabel: "Filtrar por categoria",
+      retry: "Tentar novamente",
+      reset: "Ver toda a ementa",
+      optionsLabel: "Ver opções",
+      allCategories: "Todos",
+      categoryEmpty: "Não há artigos disponíveis nesta categoria.",
+      priceMissing: "Preço não indicado",
+      yes: "Sim",
+      no: "Não",
+      snapshotLabel: "Ementa atualizada em: ",
+      loadingSummary: "A carregar a ementa…",
+      unavailableSummary: "Ementa indisponível de momento.",
+      homeLabel: (name) => `${name} — início da ementa`,
+      description: (name) => `Uma forma simples de consultar a ementa de ${name}.`,
+      inScope: (count, scope) => `${count} em ${scope}`,
+      noResults: (query, category) => `Não há resultados para “${query}”${category ? ` em ${category}` : ""}. Experimente outra palavra ou escolha outra categoria.`,
+      noItems: (category) => `Não há artigos disponíveis${category ? ` em ${category}` : ""}. Escolha outra categoria ou volte à ementa completa.`,
+      counts: { item: ["artigo", "artigos"], result: ["resultado", "resultados"], category: ["categoria", "categorias"] },
+      details: {
+        description: "Descrição", name: "Nome", price: "Preço", retailPrice: "PVP",
+        basePrice: "Preço base", unitPrice: "Preço unitário", extraPrice: "Preço extra",
+        options: "Opções", extras: "Complementos", minExtras: "Mínimo de complementos",
+        maxExtras: "Máximo de complementos", menuOptions: "Opções do menu", required: "Obrigatório",
+        products: "Produtos", maxOptions: "Máximo de opções", minOptions: "Mínimo de opções", quantity: "Quantidade"
+      },
+      states: {
+        loading: { eyebrow: "Só um momento", title: "A preparar a ementa.", copy: "Estamos a carregar os artigos e os preços." },
+        empty: { eyebrow: "Por agora", title: "Ainda não há artigos para mostrar.", copy: "A ementa não tem artigos disponíveis neste momento. Volte a consultar mais tarde." },
+        noResults: { eyebrow: "Vamos tentar de outra forma", title: "Não encontrámos o que procura." },
+        missing: { eyebrow: "Ainda não está à mesa", title: "A ementa ainda não está disponível.", copy: "Ainda não conseguimos apresentar a ementa deste espaço. Pode tentar novamente mais tarde." },
+        data: { eyebrow: "Não foi possível abrir a ementa", title: "Os dados da ementa não puderam ser lidos.", copy: "O ficheiro da ementa não está num formato que possamos apresentar. Tente novamente mais tarde." },
+        network: { eyebrow: "Uma pequena interrupção", title: "Não foi possível carregar a ementa.", copy: "Pode haver uma falha de ligação ou no serviço. Tente novamente daqui a pouco." }
+      }
+    },
+    es: {
+      locale: "es-ES",
+      menuLabel: "Carta",
+      languageLabel: "Idioma de la carta",
+      skipLink: "Ir a la carta",
+      caption: "La carta, sin prisas.",
+      eyebrow: "A la mesa",
+      heroFirst: "¿Qué le",
+      heroSecond: "apetece hoy?",
+      introFirst: "Elija sin prisas.",
+      introSecond: "La carta está aquí.",
+      searchLabel: "Buscar en la carta",
+      searchPlaceholder: "¿Qué busca?",
+      clearSearch: "Borrar búsqueda",
+      filterLabel: "Filtrar por categoría",
+      retry: "Volver a intentarlo",
+      reset: "Ver toda la carta",
+      optionsLabel: "Ver opciones",
+      allCategories: "Todos",
+      categoryEmpty: "No hay productos disponibles en esta categoría.",
+      priceMissing: "Precio no indicado",
+      yes: "Sí",
+      no: "No",
+      snapshotLabel: "Carta actualizada el: ",
+      loadingSummary: "Cargando la carta…",
+      unavailableSummary: "La carta no está disponible en este momento.",
+      homeLabel: (name) => `${name} — inicio de la carta`,
+      description: (name) => `Una forma sencilla de consultar la carta de ${name}.`,
+      inScope: (count, scope) => `${count} en ${scope}`,
+      noResults: (query, category) => `No hay resultados para «${query}»${category ? ` en ${category}` : ""}. Pruebe otra palabra o elija otra categoría.`,
+      noItems: (category) => `No hay productos disponibles${category ? ` en ${category}` : ""}. Elija otra categoría o vuelva a la carta completa.`,
+      counts: { item: ["producto", "productos"], result: ["resultado", "resultados"], category: ["categoría", "categorías"] },
+      details: {
+        description: "Descripción", name: "Nombre", price: "Precio", retailPrice: "PVP",
+        basePrice: "Precio base", unitPrice: "Precio unitario", extraPrice: "Suplemento",
+        options: "Opciones", extras: "Complementos", minExtras: "Mínimo de complementos",
+        maxExtras: "Máximo de complementos", menuOptions: "Opciones del menú", required: "Obligatorio",
+        products: "Productos", maxOptions: "Máximo de opciones", minOptions: "Mínimo de opciones", quantity: "Cantidad"
+      },
+      states: {
+        loading: { eyebrow: "Un momento", title: "Preparando la carta.", copy: "Estamos cargando los productos y los precios." },
+        empty: { eyebrow: "Por ahora", title: "Todavía no hay productos que mostrar.", copy: "La carta no tiene productos disponibles en este momento. Vuelva a consultarla más tarde." },
+        noResults: { eyebrow: "Probemos de otra forma", title: "No hemos encontrado lo que busca." },
+        missing: { eyebrow: "Aún no está en la mesa", title: "La carta aún no está disponible.", copy: "Todavía no podemos mostrar la carta de este establecimiento. Puede volver a intentarlo más tarde." },
+        data: { eyebrow: "No se ha podido abrir la carta", title: "No se han podido leer los datos de la carta.", copy: "El archivo de la carta no tiene un formato que podamos mostrar. Vuelva a intentarlo más tarde." },
+        network: { eyebrow: "Una pequeña interrupción", title: "No se ha podido cargar la carta.", copy: "Puede haber un problema de conexión o del servicio. Vuelva a intentarlo dentro de unos instantes." }
+      }
+    },
+    fr: {
+      locale: "fr-FR",
+      menuLabel: "Carte",
+      languageLabel: "Langue de la carte",
+      skipLink: "Aller à la carte",
+      caption: "La carte, en toute tranquillité.",
+      eyebrow: "À table",
+      heroFirst: "Quelles envies",
+      heroSecond: "aujourd’hui ?",
+      introFirst: "Prenez votre temps.",
+      introSecond: "La carte est juste ici.",
+      searchLabel: "Rechercher dans la carte",
+      searchPlaceholder: "Que cherchez-vous ?",
+      clearSearch: "Effacer la recherche",
+      filterLabel: "Filtrer par catégorie",
+      retry: "Réessayer",
+      reset: "Voir toute la carte",
+      optionsLabel: "Voir les options",
+      allCategories: "Tous",
+      categoryEmpty: "Aucun produit n’est disponible dans cette catégorie.",
+      priceMissing: "Prix non indiqué",
+      yes: "Oui",
+      no: "Non",
+      snapshotLabel: "Carte mise à jour le : ",
+      loadingSummary: "Chargement de la carte…",
+      unavailableSummary: "La carte est indisponible pour le moment.",
+      homeLabel: (name) => `${name} — début de la carte`,
+      description: (name) => `Une façon simple de consulter la carte de ${name}.`,
+      inScope: (count, scope) => `${count} dans ${scope}`,
+      noResults: (query, category) => `Aucun résultat pour « ${query} »${category ? ` dans ${category}` : ""}. Essayez un autre mot ou choisissez une autre catégorie.`,
+      noItems: (category) => `Aucun produit n’est disponible${category ? ` dans ${category}` : ""}. Choisissez une autre catégorie ou revenez à la carte complète.`,
+      counts: { item: ["produit", "produits"], result: ["résultat", "résultats"], category: ["catégorie", "catégories"] },
+      details: {
+        description: "Description", name: "Nom", price: "Prix", retailPrice: "Prix conseillé",
+        basePrice: "Prix de base", unitPrice: "Prix unitaire", extraPrice: "Supplément",
+        options: "Options", extras: "Suppléments", minExtras: "Nombre minimum de suppléments",
+        maxExtras: "Nombre maximum de suppléments", menuOptions: "Options du menu", required: "Obligatoire",
+        products: "Produits", maxOptions: "Nombre maximum d’options", minOptions: "Nombre minimum d’options", quantity: "Quantité"
+      },
+      states: {
+        loading: { eyebrow: "Un instant", title: "Préparation de la carte.", copy: "Nous chargeons les produits et les prix." },
+        empty: { eyebrow: "Pour le moment", title: "Il n’y a pas encore de produits à afficher.", copy: "La carte ne contient aucun produit disponible pour le moment. Revenez la consulter plus tard." },
+        noResults: { eyebrow: "Essayons autrement", title: "Nous n’avons pas trouvé ce que vous cherchez." },
+        missing: { eyebrow: "Pas encore à table", title: "La carte n’est pas encore disponible.", copy: "Nous ne pouvons pas encore afficher la carte de cet établissement. Vous pouvez réessayer plus tard." },
+        data: { eyebrow: "Impossible d’ouvrir la carte", title: "Les données de la carte n’ont pas pu être lues.", copy: "Le fichier de la carte n’est pas dans un format que nous pouvons afficher. Réessayez plus tard." },
+        network: { eyebrow: "Une petite interruption", title: "Impossible de charger la carte.", copy: "Il peut s’agir d’un problème de connexion ou de service. Réessayez dans quelques instants." }
+      }
+    },
+    en: {
+      locale: "en-GB",
+      menuLabel: "Menu",
+      languageLabel: "Menu language",
+      skipLink: "Skip to the menu",
+      caption: "The menu, at your leisure.",
+      eyebrow: "At the table",
+      heroFirst: "What takes",
+      heroSecond: "your fancy today?",
+      introFirst: "Take your time.",
+      introSecond: "The menu is right here.",
+      searchLabel: "Search the menu",
+      searchPlaceholder: "What are you looking for?",
+      clearSearch: "Clear search",
+      filterLabel: "Filter by category",
+      retry: "Try again",
+      reset: "View the full menu",
+      optionsLabel: "View options",
+      allCategories: "All",
+      categoryEmpty: "There are no items available in this category.",
+      priceMissing: "Price not listed",
+      yes: "Yes",
+      no: "No",
+      snapshotLabel: "Menu updated on: ",
+      loadingSummary: "Loading the menu…",
+      unavailableSummary: "The menu is currently unavailable.",
+      homeLabel: (name) => `${name} — start of the menu`,
+      description: (name) => `A simple way to browse the menu at ${name}.`,
+      inScope: (count, scope) => `${count} in ${scope}`,
+      noResults: (query, category) => `There are no results for “${query}”${category ? ` in ${category}` : ""}. Try another word or choose another category.`,
+      noItems: (category) => `There are no items available${category ? ` in ${category}` : ""}. Choose another category or return to the full menu.`,
+      counts: { item: ["item", "items"], result: ["result", "results"], category: ["category", "categories"] },
+      details: {
+        description: "Description", name: "Name", price: "Price", retailPrice: "RRP",
+        basePrice: "Base price", unitPrice: "Unit price", extraPrice: "Extra charge",
+        options: "Options", extras: "Extras", minExtras: "Minimum extras",
+        maxExtras: "Maximum extras", menuOptions: "Menu options", required: "Required",
+        products: "Products", maxOptions: "Maximum options", minOptions: "Minimum options", quantity: "Quantity"
+      },
+      states: {
+        loading: { eyebrow: "Just a moment", title: "Preparing the menu.", copy: "We’re loading the items and prices." },
+        empty: { eyebrow: "For now", title: "There are no items to show yet.", copy: "The menu has no items available at the moment. Please check again later." },
+        noResults: { eyebrow: "Let’s try another way", title: "We couldn’t find what you’re looking for." },
+        missing: { eyebrow: "Not at the table just yet", title: "The menu isn’t available yet.", copy: "We can’t display this venue’s menu just yet. Please try again later." },
+        data: { eyebrow: "Unable to open the menu", title: "The menu data couldn’t be read.", copy: "The menu file isn’t in a format we can display. Please try again later." },
+        network: { eyebrow: "A brief interruption", title: "The menu couldn’t be loaded.", copy: "There may be a connection or service problem. Please try again shortly." }
+      }
+    }
+  };
   const blockTags = new Set(["P", "DIV", "LI", "UL", "OL", "H1", "H2", "H3", "H4", "H5", "H6", "SECTION", "ARTICLE", "BLOCKQUOTE", "TABLE", "TR"]);
   const priceKeys = new Set(["preco", "precovenda", "price", "pvp", "precounitario", "precoextra", "precobase"]);
   const primaryPriceKeys = new Set(["preco", "precovenda", "price", "pvp"]);
@@ -28,30 +223,30 @@
   const customerDetailKeys = new Set([...nameKeys, ...descriptionKeys, ...priceKeys, "opcoes", "options", "complementares", "niveismenu", "products", "produtos", "mincomplementos", "maxcomplementos", "minopcoes", "maxopcoes", "obrigatorio", "required", "quantidade"]);
   const quantityDetailKeys = new Set(["mincomplementos", "maxcomplementos", "minopcoes", "maxopcoes", "quantidade"]);
   const detailLabels = new Map([
-    ["descricao", "Descrição"],
-    ["description", "Descrição"],
-    ["nome", "Nome"],
-    ["name", "Nome"],
-    ["preco", "Preço"],
-    ["precovenda", "Preço"],
-    ["price", "Preço"],
-    ["pvp", "PVP"],
-    ["precobase", "Preço base"],
-    ["precounitario", "Preço unitário"],
-    ["precoextra", "Preço extra"],
-    ["opcoes", "Opções"],
-    ["options", "Opções"],
-    ["complementares", "Complementos"],
-    ["mincomplementos", "Mínimo de complementos"],
-    ["maxcomplementos", "Máximo de complementos"],
-    ["niveismenu", "Opções do menu"],
-    ["obrigatorio", "Obrigatório"],
-    ["required", "Obrigatório"],
-    ["products", "Produtos"],
-    ["produtos", "Produtos"],
-    ["maxopcoes", "Máximo de opções"],
-    ["minopcoes", "Mínimo de opções"],
-    ["quantidade", "Quantidade"]
+    ["descricao", "description"],
+    ["description", "description"],
+    ["nome", "name"],
+    ["name", "name"],
+    ["preco", "price"],
+    ["precovenda", "price"],
+    ["price", "price"],
+    ["pvp", "retailPrice"],
+    ["precobase", "basePrice"],
+    ["precounitario", "unitPrice"],
+    ["precoextra", "extraPrice"],
+    ["opcoes", "options"],
+    ["options", "options"],
+    ["complementares", "extras"],
+    ["mincomplementos", "minExtras"],
+    ["maxcomplementos", "maxExtras"],
+    ["niveismenu", "menuOptions"],
+    ["obrigatorio", "required"],
+    ["required", "required"],
+    ["products", "products"],
+    ["produtos", "products"],
+    ["maxopcoes", "maxOptions"],
+    ["minopcoes", "minOptions"],
+    ["quantidade", "quantity"]
   ]);
 
   let sectionRecords = [];
@@ -62,6 +257,18 @@
   let allCategoriesCount = null;
   let loading = false;
   let loaded = false;
+  let menuData = null;
+  let menuPacks = {};
+  let searchIndex = new Map();
+  let loadError = null;
+  let language = "pt";
+  try {
+    const savedLanguage = localStorage.getItem(languageStorageKey);
+    if (Object.hasOwn(interfaces, savedLanguage)) language = savedLanguage;
+  } catch {}
+  let ui = interfaces[language];
+  let currency = new Intl.NumberFormat(ui.locale, { style: "currency", currency: "EUR" });
+  let integers = new Intl.NumberFormat(ui.locale);
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -93,7 +300,7 @@
   }
 
   function normalize(value) {
-    return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-PT").replace(/\s+/g, " ").trim();
+    return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
   }
 
   function fieldKey(key) {
@@ -102,9 +309,9 @@
 
   function fieldLabel(key) {
     const known = detailLabels.get(fieldKey(key));
-    if (known) return known;
+    if (known) return ui.details[known];
     const text = plainText(key).replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ");
-    return text.charAt(0).toLocaleUpperCase("pt-PT") + text.slice(1);
+    return text.charAt(0).toLocaleUpperCase(ui.locale) + text.slice(1);
   }
 
   function formatPrice(value) {
@@ -115,11 +322,12 @@
       const amount = Number(numeric.replace(",", "."));
       if (Number.isFinite(amount)) return currency.format(amount);
     }
-    return text || "Preço não indicado";
+    return text || ui.priceMissing;
   }
 
-  function countLabel(count, singular, plural) {
-    return `${integers.format(count)} ${count === 1 ? singular : plural}`;
+  function countLabel(count, kind) {
+    const labels = ui.counts[kind];
+    return `${integers.format(count)} ${labels[count === 1 ? 0 : 1]}`;
   }
 
   function httpUrl(value, relative = false) {
@@ -152,6 +360,29 @@
     return data;
   }
 
+  function validatePack(menu, pack) {
+    if (!pack || ["sections", "categories", "products", "options"].some((key) => !pack[key] || typeof pack[key] !== "object" || Array.isArray(pack[key]))) throw invalidData();
+    const hasText = (value) => typeof value === "string" && Boolean(plainText(value));
+    if (!["Cafe", "Curto"].every((key) => hasText(pack.options[key]))) throw invalidData();
+    for (const section of menu.sections) {
+      if (!hasText(pack.sections[String(section.id)])) throw invalidData();
+      for (const category of section.categories) {
+        if (!hasText(pack.categories[String(category.id)])) throw invalidData();
+        for (const item of category.items) {
+          const product = pack.products[`${category.id}:${item.id}`];
+          if (!product || !hasText(product.name) || typeof product.description !== "string") throw invalidData();
+        }
+      }
+    }
+    return pack;
+  }
+
+  function localizeOption(value) {
+    const text = plainText(value);
+    const options = language === "pt" ? null : menuPacks[language].options;
+    return options && Object.hasOwn(options, text) ? plainText(options[text]) : text;
+  }
+
   function customerDetails(value) {
     if (Array.isArray(value)) return value.map(customerDetails);
     if (value === null || typeof value !== "object") return value;
@@ -165,23 +396,43 @@
     return result;
   }
 
-  function detailText(value) {
+  function detailText(value, options = null) {
     if (value === null || value === undefined) return "";
-    if (Array.isArray(value)) return value.map(detailText).join(" ");
-    if (typeof value === "object") return Object.values(value).map(detailText).join(" ");
-    return plainText(value);
+    if (Array.isArray(value)) return value.map((entry) => detailText(entry, options)).join(" ");
+    if (typeof value === "object") return Object.values(value).map((entry) => detailText(entry, options)).join(" ");
+    const text = plainText(value);
+    return options && Object.hasOwn(options, text) ? options[text] : text;
+  }
+
+  function buildSearchIndex(menu) {
+    const index = new Map();
+    for (const section of menu.sections) {
+      for (const category of section.categories) {
+        for (const item of category.items) {
+          const key = `${category.id}:${item.id}`;
+          const details = customerDetails(item.details);
+          const aliases = [section.name, category.name, item.name, item.description, detailText(details)];
+          for (const pack of Object.values(menuPacks)) {
+            const product = pack.products[key];
+            aliases.push(pack.sections[String(section.id)], pack.categories[String(category.id)], product.name, product.description, detailText(details, pack.options));
+          }
+          index.set(key, normalize(aliases.join(" ")));
+        }
+      }
+    }
+    return index;
   }
 
   function detailValue(value, key) {
     if (value === null || value === undefined || value === "") return "";
     const name = fieldKey(key);
-    if (typeof value === "boolean") return value ? "Sim" : "Não";
+    if (typeof value === "boolean") return value ? ui.yes : ui.no;
     if (name === "obrigatorio" || name === "required") {
       const flag = normalize(value);
-      if (["1", "true", "s", "sim", "yes"].includes(flag)) return "Sim";
-      if (["0", "false", "n", "nao", "no"].includes(flag)) return "Não";
+      if (["1", "true", "s", "sim", "yes"].includes(flag)) return ui.yes;
+      if (["0", "false", "n", "nao", "no"].includes(flag)) return ui.no;
     }
-    return priceKeys.has(name) ? formatPrice(value) : plainText(value);
+    return priceKeys.has(name) ? formatPrice(value) : localizeOption(value);
   }
 
   function detailIdentity(entries) {
@@ -220,7 +471,7 @@
     if (price) consumed.add(price[0]);
     if (showTitle) {
       const heading = element("div", "item-heading");
-      heading.append(element("p", "detail-label", title));
+      heading.append(element("p", "detail-label", localizeOption(title)));
       if (showPrice) heading.append(element("span", "item-price", formatPrice(price[1])));
       group.append(heading);
     }
@@ -238,7 +489,7 @@
       if (consumed.has(name) || content !== null && typeof content === "object") continue;
       if (descriptionKeys.has(fieldKey(name))) {
         const description = plainText(content);
-        if (description && description !== title && (!itemContext || description !== itemContext.description)) group.append(element("p", "detail-note", description));
+        if (description && description !== title && (!itemContext || description !== itemContext.description)) group.append(element("p", "detail-note", localizeOption(description)));
       } else {
         addInformation(name, content);
       }
@@ -261,11 +512,14 @@
     return group.childElementCount ? group : null;
   }
 
-  function renderItem(item, categoryName, sectionName) {
-    const name = plainText(item.name);
-    const description = plainText(item.description);
+  function renderItem(item, categoryId) {
+    const key = `${categoryId}:${item.id}`;
+    const product = language === "pt" ? item : menuPacks[language].products[key];
+    const name = plainText(product.name);
+    const description = plainText(product.description);
     const article = element("article", "menu-item");
     if (item.id !== undefined) article.dataset.sourceId = String(item.id);
+    article.dataset.productKey = key;
     const imageUrl = httpUrl(item.image, true);
     if (imageUrl) {
       const image = element("img", "item-image");
@@ -285,10 +539,11 @@
     copy.append(heading);
     if (description) copy.append(element("p", "item-description", description));
     const detailData = customerDetails(item.details);
-    const detailPresentation = renderDetail(detailData, "", { name, description, price: item.price });
+    const detailPresentation = renderDetail(detailData, "", { name: plainText(item.name), description: plainText(item.description), price: item.price });
+    let details = null;
     if (detailPresentation) {
-      const details = element("details", "item-details");
-      const summary = element("summary", "", "Ver opções");
+      details = element("details", "item-details");
+      const summary = element("summary", "", ui.optionsLabel);
       const content = element("div", "detail-content");
       content.append(detailPresentation);
       details.append(summary, content);
@@ -296,12 +551,18 @@
     }
     article.append(copy);
     return {
+      id: key,
       element: article,
-      searchText: normalize([name, description, categoryName, sectionName, detailText(detailData)].join(" "))
+      details,
+      searchText: searchIndex.get(key)
     };
   }
 
   function renderMenu(menu) {
+    const selectedId = selectedCategory ? selectedCategory.id : null;
+    const expandedItems = new Set(itemRecords.filter((item) => item.details && item.details.open).map((item) => item.id));
+    const navigationOffset = navigation.scrollLeft;
+    const pack = language === "pt" ? null : menuPacks[language];
     const sectionFragment = document.createDocumentFragment();
     const navFragment = document.createDocumentFragment();
     sectionRecords = [];
@@ -314,12 +575,12 @@
     allCategoriesButton.setAttribute("aria-controls", "menu-sections");
     allCategoriesCount = element("span", "category-count");
     allCategoriesCount.setAttribute("aria-hidden", "true");
-    allCategoriesButton.append(element("span", "category-filter-name", "Todos"), allCategoriesCount);
+    allCategoriesButton.append(element("span", "category-filter-name", ui.allCategories), allCategoriesCount);
     allCategoriesButton.addEventListener("click", () => selectCategory(null));
     navFragment.append(allCategoriesButton);
 
     menu.sections.forEach((sourceSection, sectionIndex) => {
-      const sectionName = plainText(sourceSection.name);
+      const sectionName = plainText(pack ? pack.sections[String(sourceSection.id)] : sourceSection.name);
       const section = element("section", "menu-section");
       const sectionId = `section-${sectionIndex + 1}`;
       section.id = sectionId;
@@ -336,7 +597,7 @@
       const sectionRecord = { element: section, count: sectionCount, categories: [] };
 
       sourceSection.categories.forEach((sourceCategory, categoryIndex) => {
-        const categoryName = plainText(sourceCategory.name);
+        const categoryName = plainText(pack ? pack.categories[String(sourceCategory.id)] : sourceCategory.name);
         const categoryId = `category-${sectionIndex + 1}-${categoryIndex + 1}`;
         const category = element("section", "menu-category");
         category.id = categoryId;
@@ -350,12 +611,13 @@
         category.append(categoryHeading);
         const itemList = element("div", "item-list");
         const items = sourceCategory.items.map((item) => {
-          const record = renderItem(item, categoryName, sectionName);
+          const record = renderItem(item, sourceCategory.id);
+          if (record.details) record.details.open = expandedItems.has(record.id);
           itemList.append(record.element);
           itemRecords.push(record);
           return record;
         });
-        if (items.length === 0) itemList.append(element("p", "category-empty", "Não há artigos disponíveis nesta categoria."));
+        if (items.length === 0) itemList.append(element("p", "category-empty", ui.categoryEmpty));
         category.append(itemList);
         section.append(category);
 
@@ -367,7 +629,8 @@
         navCount.setAttribute("aria-hidden", "true");
         button.append(element("span", "category-filter-name", categoryName), navCount);
         navFragment.append(button);
-        const categoryRecord = { element: category, button, name: categoryName, count: categoryCount, navCount, items };
+        const categoryRecord = { id: String(sourceCategory.id), element: category, button, name: categoryName, count: categoryCount, navCount, items };
+        if (categoryRecord.id === selectedId) selectedCategory = categoryRecord;
         button.addEventListener("click", () => selectCategory(categoryRecord));
         sectionRecord.categories.push(categoryRecord);
         categoryRecords.push(categoryRecord);
@@ -378,16 +641,17 @@
 
     menuSections.replaceChildren(sectionFragment);
     navigation.replaceChildren(navFragment);
+    navigation.scrollLeft = navigationOffset;
   }
 
   function updateMetadata(menu) {
-    const name = plainText(menu.name) || "Desfolhada";
+    const name = plainText(menu?.name) || "Desfolhada";
     document.querySelector(".wordmark-name").textContent = name;
-    document.querySelector(".wordmark").setAttribute("aria-label", `${name} — início da ementa`);
-    document.title = `${name} — Ementa`;
-    document.querySelector('meta[name="description"]').content = `Uma forma simples de consultar a ementa de ${name}.`;
+    document.querySelector(".wordmark").setAttribute("aria-label", ui.homeLabel(name));
+    document.title = `${name} — ${ui.menuLabel}`;
+    document.querySelector('meta[name="description"]').content = ui.description(name);
     const snapshot = document.getElementById("snapshot-date");
-    const updatedAt = plainText(menu.updatedAt);
+    const updatedAt = plainText(menu?.updatedAt);
     snapshot.hidden = !updatedAt;
     snapshot.replaceChildren();
     if (updatedAt) {
@@ -397,20 +661,75 @@
         time.textContent = updatedAt;
       } else {
         time.dateTime = date.toISOString();
-        time.textContent = new Intl.DateTimeFormat("pt-PT", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Lisbon" }).format(date);
+        time.textContent = new Intl.DateTimeFormat(ui.locale, { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Lisbon" }).format(date);
       }
-      snapshot.append(document.createTextNode("Atualização da cópia: "), time);
+      snapshot.append(document.createTextNode(ui.snapshotLabel), time);
     }
   }
 
-  function showState(type, eyebrow, title, copy, retry = false, reset = false) {
+  function applyLanguage() {
+    ui = interfaces[language];
+    currency = new Intl.NumberFormat(ui.locale, { style: "currency", currency: "EUR" });
+    integers = new Intl.NumberFormat(ui.locale);
+    document.documentElement.lang = ui.locale;
+    document.querySelectorAll("[data-i18n]").forEach((node) => {
+      node.textContent = ui[node.dataset.i18n];
+    });
+    languageSwitcher.setAttribute("aria-label", ui.languageLabel);
+    languageSwitcher.querySelectorAll("button").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.language === language));
+    });
+    document.querySelector(".menu-tools").setAttribute("aria-label", ui.searchLabel);
+    search.placeholder = ui.searchPlaceholder;
+    clearSearch.setAttribute("aria-label", ui.clearSearch);
+    navigation.setAttribute("aria-label", ui.filterLabel);
+    menuContent.setAttribute("aria-label", ui.menuLabel);
+    updateMetadata(menuData);
+    if (loaded) {
+      renderMenu(menuData);
+      applyFilter();
+      revealSelectedCategory();
+    } else {
+      showRequestState();
+    }
+  }
+
+  function changeLanguage(nextLanguage) {
+    if (!Object.hasOwn(interfaces, nextLanguage) || language === nextLanguage) return;
+    language = nextLanguage;
+    try {
+      localStorage.setItem(languageStorageKey, language);
+    } catch {}
+    applyLanguage();
+  }
+
+  function showState(type, message, retry = false, reset = false, copy = message.copy) {
     menuStatus.className = `menu-state is-${type}`;
     menuStatus.hidden = false;
-    stateEyebrow.textContent = eyebrow;
-    stateTitle.textContent = title;
+    stateEyebrow.textContent = message.eyebrow;
+    stateTitle.textContent = message.title;
     stateCopy.textContent = copy;
     retryMenu.hidden = !retry;
     resetSearch.hidden = !reset;
+  }
+
+  function showRequestState() {
+    if (loadError) {
+      searchSummary.textContent = ui.unavailableSummary;
+      showState("error", ui.states[loadError], true);
+    } else {
+      searchSummary.textContent = ui.loadingSummary;
+      showState("loading", ui.states.loading);
+    }
+  }
+
+  function revealSelectedCategory() {
+    const button = selectedCategory ? selectedCategory.button : allCategoriesButton;
+    if (!button || navigation.scrollWidth <= navigation.clientWidth) return;
+    const bounds = button.getBoundingClientRect();
+    const viewport = navigation.getBoundingClientRect();
+    if (bounds.left < viewport.left) navigation.scrollLeft -= viewport.left - bounds.left;
+    else if (bounds.right > viewport.right) navigation.scrollLeft += bounds.right - viewport.right;
   }
 
   function selectCategory(category) {
@@ -418,6 +737,7 @@
     if (selectedCategory === category) return;
     selectedCategory = category;
     applyFilter();
+    revealSelectedCategory();
     if (menuContent.getBoundingClientRect().top < 0) menuContent.scrollIntoView({ block: "start" });
   }
 
@@ -442,40 +762,38 @@
         }
         const visibleCount = selected ? matches : 0;
         category.element.hidden = visibleCount === 0;
-        category.count.textContent = countLabel(visibleCount, "artigo", "artigos");
+        category.count.textContent = countLabel(visibleCount, "item");
         category.navCount.textContent = integers.format(matches);
         category.button.setAttribute("aria-pressed", String(selectedCategory === category));
-        category.button.setAttribute("aria-label", `${category.name}, ${countLabel(matches, "artigo", "artigos")}`);
+        category.button.setAttribute("aria-label", `${category.name}, ${countLabel(matches, "item")}`);
         if (visibleCount > 0) visibleCategories += 1;
         sectionTotal += visibleCount;
         allMatches += matches;
       }
       section.element.hidden = sectionTotal === 0;
-      section.count.textContent = countLabel(sectionTotal, "artigo", "artigos");
+      section.count.textContent = countLabel(sectionTotal, "item");
       total += sectionTotal;
     }
 
     allCategoriesButton.setAttribute("aria-pressed", String(selectedCategory === null));
-    allCategoriesButton.setAttribute("aria-label", `Todos, ${countLabel(allMatches, "artigo", "artigos")}`);
+    allCategoriesButton.setAttribute("aria-label", `${ui.allCategories}, ${countLabel(allMatches, "item")}`);
     allCategoriesCount.textContent = integers.format(allMatches);
     sidebar.hidden = categoryRecords.length === 0;
     layout.classList.toggle("has-navigation", !sidebar.hidden);
     menuSections.hidden = total === 0;
     if (selectedCategory) {
-      searchSummary.textContent = `${query ? countLabel(total, "resultado", "resultados") : countLabel(total, "artigo", "artigos")} em ${selectedCategory.name}`;
+      searchSummary.textContent = ui.inScope(countLabel(total, query ? "result" : "item"), selectedCategory.name);
     } else if (query) {
-      searchSummary.textContent = `${countLabel(total, "resultado", "resultados")} em ${countLabel(visibleCategories, "categoria", "categorias")}`;
+      searchSummary.textContent = ui.inScope(countLabel(total, "result"), countLabel(visibleCategories, "category"));
     } else {
-      searchSummary.textContent = `${countLabel(total, "artigo", "artigos")} · ${countLabel(categoryRecords.length, "categoria", "categorias")}`;
+      searchSummary.textContent = `${countLabel(total, "item")} · ${countLabel(categoryRecords.length, "category")}`;
     }
     if (itemRecords.length === 0) {
-      showState("empty", "Por agora", "Ainda não há artigos para mostrar.", "A cópia da ementa não contém artigos disponíveis. Consulte a ementa original ou fale com o estabelecimento.");
+      showState("empty", ui.states.empty);
     } else if (total === 0) {
-      const scope = selectedCategory ? ` em ${selectedCategory.name}` : "";
-      const explanation = query
-        ? `Não há resultados para “${search.value.trim()}”${scope}. Experimente outra palavra ou escolha outra categoria.`
-        : `Não há artigos disponíveis${scope}. Escolha outra categoria ou volte à ementa completa.`;
-      showState("empty", "Vamos tentar de outra forma", "Não encontrámos o que procura.", explanation, false, true);
+      const category = selectedCategory ? selectedCategory.name : "";
+      const explanation = query ? ui.noResults(search.value.trim(), category) : ui.noItems(category);
+      showState("empty", ui.states.noResults, false, true, explanation);
     } else {
       menuStatus.hidden = true;
     }
@@ -493,10 +811,21 @@
     navigation.scrollLeft = 0;
   }
 
+  async function fetchJson(path) {
+    const response = await fetch(path, { cache: "no-cache" });
+    if (!response.ok) throw Object.assign(new Error("Menu request failed"), { kind: response.status === 404 ? "missing" : "network" });
+    try {
+      return await response.json();
+    } catch {
+      throw invalidData();
+    }
+  }
+
   async function loadMenu() {
-    if (loading) return;
+    if (loading || loaded) return;
     loading = true;
     loaded = false;
+    loadError = null;
     search.disabled = true;
     retryMenu.disabled = true;
     clearSearch.hidden = true;
@@ -504,18 +833,18 @@
     layout.classList.remove("has-navigation");
     menuSections.hidden = true;
     menuContent.setAttribute("aria-busy", "true");
-    searchSummary.textContent = "A carregar a ementa…";
-    showState("loading", "Só um momento", "A preparar a ementa.", "Estamos a carregar os artigos e os preços.");
+    showRequestState();
     try {
-      const response = await fetch("./menu.json", { cache: "no-cache" });
-      if (!response.ok) throw Object.assign(new Error("Menu request failed"), { kind: response.status === 404 ? "missing" : "network" });
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        throw invalidData();
-      }
+      const codes = Object.keys(languageFiles);
+      const [data, ...packs] = await Promise.all(["./menu.json", ...Object.values(languageFiles)].map(fetchJson));
       const menu = validateMenu(data);
+      const translations = {};
+      codes.forEach((code, index) => {
+        translations[code] = validatePack(menu, packs[index]);
+      });
+      menuData = menu;
+      menuPacks = translations;
+      searchIndex = buildSearchIndex(menu);
       renderMenu(menu);
       updateMetadata(menu);
       loaded = true;
@@ -524,14 +853,8 @@
       applyFilter();
     } catch (error) {
       menuContent.setAttribute("aria-busy", "false");
-      searchSummary.textContent = "Ementa indisponível de momento.";
-      if (error.kind === "missing") {
-        showState("error", "Ainda não está à mesa", "A ementa ainda não está disponível.", "Ainda não conseguimos apresentar a ementa deste espaço. Pode tentar novamente mais tarde.", true);
-      } else if (error.kind === "data") {
-        showState("error", "Não foi possível abrir a ementa", "Os dados da ementa não puderam ser lidos.", "O ficheiro da ementa não está num formato que possamos apresentar. Tente novamente mais tarde.", true);
-      } else {
-        showState("error", "Uma pequena interrupção", "Não foi possível carregar a ementa.", "Pode haver uma falha de ligação ou no serviço. Tente novamente daqui a pouco.", true);
-      }
+      loadError = error.kind === "missing" || error.kind === "data" ? error.kind : "network";
+      showRequestState();
     } finally {
       loading = false;
       retryMenu.disabled = false;
@@ -549,6 +872,10 @@
   clearSearch.addEventListener("click", clearQuery);
   resetSearch.addEventListener("click", resetFilters);
   retryMenu.addEventListener("click", loadMenu);
+  languageSwitcher.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => changeLanguage(button.dataset.language));
+  });
 
+  applyLanguage();
   loadMenu();
 })();

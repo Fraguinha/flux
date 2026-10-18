@@ -10,7 +10,7 @@
     <script src="./app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#menu-content">Saltar para a ementa</a>
+    <a class="skip-link" href="#menu-content" data-i18n="skipLink">Saltar para a ementa</a>
     <header class="site-header">
       <div class="header-inner">
         <a class="wordmark" href="#top" aria-label="Desfolhada — início da ementa">
@@ -20,18 +20,26 @@
           </svg>
           <span class="wordmark-name">Desfolhada</span>
         </a>
-        <span class="header-caption">A ementa, com calma.</span>
+        <div class="header-actions">
+          <span class="header-caption" data-i18n="caption">A ementa, com calma.</span>
+          <div id="language-switcher" class="language-switcher" role="group" aria-label="Idioma da ementa">
+            <button type="button" data-language="pt" lang="pt-PT" aria-label="Português" aria-pressed="true">PT</button>
+            <button type="button" data-language="es" lang="es-ES" aria-label="Español" aria-pressed="false">ES</button>
+            <button type="button" data-language="fr" lang="fr-FR" aria-label="Français" aria-pressed="false">FR</button>
+            <button type="button" data-language="en" lang="en-GB" aria-label="English (UK)" aria-pressed="false">UK</button>
+          </div>
+        </div>
       </div>
     </header>
     <main id="top" class="page-shell">
       <section class="intro" aria-labelledby="menu-title">
-        <p class="eyebrow">À mesa</p>
-        <h1 id="menu-title">O que lhe<br>apetece hoje?</h1>
-        <p class="intro-copy">Escolha com tempo.<br>A ementa está mesmo aqui.</p>
+        <p class="eyebrow" data-i18n="eyebrow">À mesa</p>
+        <h1 id="menu-title"><span data-i18n="heroFirst">O que lhe</span><br><span data-i18n="heroSecond">apetece hoje?</span></h1>
+        <p class="intro-copy"><span data-i18n="introFirst">Escolha com tempo.</span><br><span data-i18n="introSecond">A ementa está mesmo aqui.</span></p>
       </section>
       <section class="menu-tools" aria-label="Pesquisar na ementa">
         <div class="search-field" role="search">
-          <label class="sr-only" for="menu-search">Pesquisar na ementa</label>
+          <label class="sr-only" for="menu-search" data-i18n="searchLabel">Pesquisar na ementa</label>
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/>
             <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -47,7 +55,7 @@
       </section>
       <div class="menu-layout">
         <aside id="category-sidebar" class="category-sidebar" hidden>
-          <p class="nav-label">Filtrar por categoria</p>
+          <p class="nav-label" data-i18n="filterLabel">Filtrar por categoria</p>
           <div id="category-nav" class="category-nav" role="group" aria-label="Filtrar por categoria"></div>
         </aside>
         <section id="menu-content" class="menu-content" aria-label="Ementa" tabindex="-1" aria-busy="true">
@@ -60,8 +68,8 @@
             <p id="state-eyebrow" class="state-eyebrow">Só um momento</p>
             <h2 id="state-title" class="state-title">A preparar a ementa.</h2>
             <p id="state-copy" class="state-copy">Estamos a carregar os artigos e os preços.</p>
-            <button id="retry-menu" class="text-button" type="button" hidden>Tentar novamente</button>
-            <button id="reset-search" class="text-button" type="button" hidden>Ver toda a ementa</button>
+            <button id="retry-menu" class="text-button" type="button" data-i18n="retry" hidden>Tentar novamente</button>
+            <button id="reset-search" class="text-button" type="button" data-i18n="reset" hidden>Ver toda a ementa</button>
           </div>
           <div id="menu-sections" class="menu-sections"></div>
           <noscript>
