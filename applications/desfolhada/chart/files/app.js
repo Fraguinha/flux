@@ -417,6 +417,7 @@
   }
 
   function selectCategory(category) {
+    if (category === null) navigation.scrollLeft = 0;
     if (selectedCategory === category) return;
     selectedCategory = category;
     applyFilter();
@@ -492,6 +493,7 @@
   function resetFilters() {
     selectedCategory = null;
     clearQuery();
+    navigation.scrollLeft = 0;
   }
 
   async function loadMenu() {
