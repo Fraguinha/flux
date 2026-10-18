@@ -17,6 +17,7 @@
               "name": "Café",
               "description": "",
               "price": 0.9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2f448ad18772e8dd89cc319c25a228a4.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -83,6 +84,7 @@
               "name": "Descafeinado",
               "description": "",
               "price": 0.9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b936f59e2c2c0d6f5dbd920fc270de76.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -149,6 +151,7 @@
               "name": "Chá",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/ee580860467ed8b4f9415388f4936dec.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -202,6 +205,7 @@
               "name": "Café c/Natas",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/116519427c5cd88abe4882a3a75f0cea.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -255,6 +259,7 @@
               "name": "Abatanado",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/701ed41f09bf71a6bd00842cb171d5ec.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -308,6 +313,7 @@
               "name": "Chocolate Quente",
               "description": "",
               "price": 3.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/f6845b936b87786eb466f79d3ff98cb8.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -361,6 +367,7 @@
               "name": "Chá Camomila",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e47b0eda88bdca56c3f7c24aaa2c1e86.jpeg",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -414,6 +421,7 @@
               "name": "Chá Cidreira",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/83f0da9b417808b587c94d7bb3af6665.jpeg",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -467,6 +475,7 @@
               "name": "Chá Marrocos",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/75a256a44b05b44e68543823991502ef.jpeg",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -520,6 +529,7 @@
               "name": "Chá Maçã-Canela",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0535831bf1b9ba4d7d5f3e6d8a707864.jpeg",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -573,6 +583,7 @@
               "name": "Chá Limão",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a52d60a889a83b365d54ab08e63fc75b.jpeg",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -626,6 +637,7 @@
               "name": "Chá Verde",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4faa7d36a9f04550f51fccd94ccdfd4e.jpeg",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -679,6 +691,7 @@
               "name": "Chá Preto",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4acceebc250e400b7b228e067fa41a7d.jpeg",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -732,6 +745,7 @@
               "name": "Chá Lúcia-Lima",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5f9e755b20ebcc708e537cd110a8019d.jpeg",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -785,6 +799,7 @@
               "name": "Chá Tília",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c92543d1d10c5028e8585ff26c28f3b7.jpeg",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -844,6 +859,7 @@
               "name": "Fino",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3bf614f7cea3248f0185aa46090c1be1.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -897,6 +913,7 @@
               "name": "Bohemia",
               "description": "",
               "price": 1.7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b4c1a45d40df5b0efb8858c258e275c6.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -950,6 +967,7 @@
               "name": "Mini Sagres",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/dfd01a994f2b1577903b01be2fa9a953.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -1003,6 +1021,7 @@
               "name": "Mini Super",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e44712010b592903493ae560e2f1d633.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -1056,6 +1075,7 @@
               "name": "Sagres 33 cl",
               "description": "",
               "price": 1.7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/9aa96bb6081fadbc0aa4c04f2f524534.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -1109,6 +1129,7 @@
               "name": "Super 33 cl",
               "description": "",
               "price": 1.4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/86e8cb795a64883e7e58d47d0ed52ab0.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -1162,6 +1183,7 @@
               "name": "Sommersby Copo",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/f4e962a95dc7476d1b2ffbdc43c96683.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -1215,6 +1237,7 @@
               "name": "Sommersby Frutos Vermelhos",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/cf30d32232c503a8051fdbbae427f8de.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -1268,6 +1291,7 @@
               "name": "Sommersby Ananás",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/659cd1bb16e1928b2e5b03247c5b9c97.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -1321,6 +1345,7 @@
               "name": "Fino Stout",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c4b3eb152a642a694c822bc6d755d912.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -1374,6 +1399,7 @@
               "name": "Caneca",
               "description": "",
               "price": 2.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/00320769455cee7d61947717305261f4.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -1427,6 +1453,7 @@
               "name": "Tulipa",
               "description": "",
               "price": 2.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/cc4d5dc75078c083233e8400b9735740.png",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -1480,6 +1507,7 @@
               "name": "Traçado",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/27827ee965220b963cd1b6c1f60186bc.jpeg",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -1533,6 +1561,7 @@
               "name": "Diesel",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a86495af1015cecc294dc0e831db7ed7.jpeg",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -1586,6 +1615,7 @@
               "name": "Tango",
               "description": "",
               "price": 1.2,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4e1e483b7d196eff6e53fb6901e1877c.jpeg",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -1645,6 +1675,7 @@
               "name": "Água s/gás",
               "description": "",
               "price": 1,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a219515ef27ffcfb6e3ee62c6ce7bf0e.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -1698,6 +1729,7 @@
               "name": "Pedras Normal",
               "description": "",
               "price": 1.4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3d07cf9017e505200afbf7177c329d55.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -1751,6 +1783,7 @@
               "name": "Castello",
               "description": "",
               "price": 1.4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a451fad6c88f2879279959cbaca9e095.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -1804,6 +1837,7 @@
               "name": "Pedras Limão",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b3df391528cfbb3dae0bacc26708b094.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -1857,6 +1891,7 @@
               "name": "Pedras Frutos Vermelhos",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5c97b42a8cd12a2d9b57a505b868acdd.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -1910,6 +1945,7 @@
               "name": "Pedras Ananás",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/9c4c164df6918f07215b78cdd96f16a1.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -1963,6 +1999,7 @@
               "name": "Pedras Tangerina",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/8115151a2690899c3f4f3d097ddffbe5.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -2016,6 +2053,7 @@
               "name": "Pedras Maracujá",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/025849f61422d355ba6f208d490f3d5d.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -2069,6 +2107,7 @@
               "name": "Frize Limão",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/7ae61e182ca6853fe63a73d712647f37.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -2122,6 +2161,7 @@
               "name": "Frize Groselha",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2deb8ef1423be79d81e280108a783eb0.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -2175,6 +2215,7 @@
               "name": "Frize Ananás",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/cd261934783d6b47402be0bfbec8ef56.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -2228,6 +2269,7 @@
               "name": "Gingerale",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/8eb392dd0d27a7e1de2404e8e5d164c9.png",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -2281,6 +2323,7 @@
               "name": "Tónica Garrafa",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/03d491c3f2db8ace8194822c2dbe660b.png",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -2334,6 +2377,7 @@
               "name": "Mistela",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/23b47a1b5a77b220e2e46afd995b7862.png",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -2387,6 +2431,7 @@
               "name": "Joy Copo",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b37a6056445e49c104f3ba693cd7a8c7.png",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -2440,6 +2485,7 @@
               "name": "Coca Cola",
               "description": "",
               "price": 1.8,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/ab7898bc14531a5ed27262c657bc65e1.png",
               "details": {
                 "posicao": 16,
                 "produtosSugeridos": [],
@@ -2493,6 +2539,7 @@
               "name": "Coca Cola Zero",
               "description": "",
               "price": 1.8,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b402d0142cd99e1a76e78080716ed591.png",
               "details": {
                 "posicao": 17,
                 "produtosSugeridos": [],
@@ -2546,6 +2593,7 @@
               "name": "Ice Tea Limão",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4533f934f6075abd9823bfb2685a74aa.png",
               "details": {
                 "posicao": 18,
                 "produtosSugeridos": [],
@@ -2599,6 +2647,7 @@
               "name": "Ice Tea Pêssego",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/bdb2d6c09d0853e703bb50b45a8554e2.png",
               "details": {
                 "posicao": 19,
                 "produtosSugeridos": [],
@@ -2652,6 +2701,7 @@
               "name": "Ice Tea Manga Maracujá",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4e8ce8ec983f9e95c8c4387ced7aba16.png",
               "details": {
                 "posicao": 20,
                 "produtosSugeridos": [],
@@ -2705,6 +2755,7 @@
               "name": "Sumol Laranja",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e634360b429d04ae60bf5605f907bc4b.png",
               "details": {
                 "posicao": 21,
                 "produtosSugeridos": [],
@@ -2758,6 +2809,7 @@
               "name": "Sumol Ananás",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5a31252033d54efd07d0385e4eeca198.png",
               "details": {
                 "posicao": 22,
                 "produtosSugeridos": [],
@@ -2811,6 +2863,7 @@
               "name": "Luso Limão",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/350d2d90e3db3e66d9a5648bde8b6be3.png",
               "details": {
                 "posicao": 23,
                 "produtosSugeridos": [],
@@ -2864,6 +2917,7 @@
               "name": "Luso Frutos Vermelhos",
               "description": "",
               "price": 1.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/83aa5649cd523927b10184e2ea987bb2.png",
               "details": {
                 "posicao": 24,
                 "produtosSugeridos": [],
@@ -2917,6 +2971,7 @@
               "name": "Sprite Lata",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/fb5dcc496a52464a2df68fff182a7b71.png",
               "details": {
                 "posicao": 25,
                 "produtosSugeridos": [],
@@ -2970,6 +3025,7 @@
               "name": "Sprite Lata",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/32aa60c7e386d8583dd4958e3412f748.png",
               "details": {
                 "posicao": 26,
                 "produtosSugeridos": [],
@@ -3023,6 +3079,7 @@
               "name": "Red Bull",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3aadd4d1d8cd70138704b1cb8f2041c3.png",
               "details": {
                 "posicao": 27,
                 "produtosSugeridos": [],
@@ -3082,6 +3139,7 @@
               "name": "Ballantine's",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0a750d3b980739940a1d4e8d47b41cc0.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -3135,6 +3193,7 @@
               "name": "Bushmills",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/6f8d28fb86331435d1b0df4e7edb9752.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -3188,6 +3247,7 @@
               "name": "Bushmills Black",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a7779b4cccc38675c5f4fb9b4fb803ea.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -3241,6 +3301,7 @@
               "name": "Cardhu 12y",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/72358d54b468709ef83ef6934cb57aa9.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -3294,6 +3355,7 @@
               "name": "Chivas Regal 12y",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0912624cdc09f2859c81525d77dcbbc8.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -3347,6 +3409,7 @@
               "name": "Four Roses",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b34919b46bc1b8eeac1ee70981e63cf3.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -3400,6 +3463,7 @@
               "name": "JB 15y",
               "description": "",
               "price": 7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/29645fccfe11d5d8c0b1fe05fdca784e.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -3453,6 +3517,7 @@
               "name": "Jack Daniel's",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1d1c25afa8490714720621167e2c992d.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -3506,6 +3571,7 @@
               "name": "Jack Daniel's Maça",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/fc065a7a1f36d797bfa261e04f9a89ba.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -3559,6 +3625,7 @@
               "name": "Jack Daniel's Fire",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0ba0015e8f6cf952121fb4b0d28cc134.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -3612,6 +3679,7 @@
               "name": "Famous Grouse",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b3ef0b0317c974d9b7f1ddd4267105f7.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -3665,6 +3733,7 @@
               "name": "Red Label",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/8dde3828a7c14a37cc58180f64b857aa.png",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -3718,6 +3787,7 @@
               "name": "Black Label",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/9f303423add30b1898bf32669a33157f.png",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -3771,6 +3841,7 @@
               "name": "Haig Club",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5b11986f6a1be1927f5bfb10bd9f7d5b.png",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -3824,6 +3895,7 @@
               "name": "Dimple",
               "description": "",
               "price": 7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/8974c62e05907d01d85612186f5f4591.png",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -3877,6 +3949,7 @@
               "name": "Logan",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5d5cb112f357ad9bf3465063aa9a0843.png",
               "details": {
                 "posicao": 16,
                 "produtosSugeridos": [],
@@ -3930,6 +4003,7 @@
               "name": "Jameson",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/6b943c0793f9765e560fc5020417bc6b.png",
               "details": {
                 "posicao": 17,
                 "produtosSugeridos": [],
@@ -3983,6 +4057,7 @@
               "name": "Singleton",
               "description": "",
               "price": 6.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4a1bcfc9f6bfe182b50100e5f4f40d06.png",
               "details": {
                 "posicao": 18,
                 "produtosSugeridos": [],
@@ -4042,6 +4117,7 @@
               "name": "Bacardi Limon",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/28ab5155f1f7214166cf5bb75e3e627d.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -4095,6 +4171,7 @@
               "name": "Amêndoa Amarga",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/fa139e525d4e283861ef1991ef0796b1.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -4148,6 +4225,7 @@
               "name": "Bacardi",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/146667a5660ea5173bfb15f1f85d8f49.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -4201,6 +4279,7 @@
               "name": "Baileys",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/17acdd5f5fb119af51202c7ed5684405.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -4254,6 +4333,7 @@
               "name": "Beirão",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5957a3a03599f12178a0ef2307d33bde.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -4307,6 +4387,7 @@
               "name": "Blue Curação",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/d380f9fb465ab91d0d9bcf60fb5935e4.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -4360,6 +4441,7 @@
               "name": "Cointreau",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e8d386176f9f5fa2ae55e2fb6995f135.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -4413,6 +4495,7 @@
               "name": "Drambuie",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/d0cff309c09ca278f156ab313a32620d.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -4466,6 +4549,7 @@
               "name": "Malibu",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b1d8cacadee52a3923fa9ae74e636f1f.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -4519,6 +4603,7 @@
               "name": "Martini Bianco",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/304875f80474fd24f52c470a1b1ecd0b.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -4572,6 +4657,7 @@
               "name": "Martini Rosso",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e7dc75f59151198ae766312b27e4c077.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -4625,6 +4711,7 @@
               "name": "Porto Tónico",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2260c0cd2c3e4c3abbc560e1e351cab1.png",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -4678,6 +4765,7 @@
               "name": "Pisang Ambon",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/f2ea03e466e5a2feb484e0117d9c24f5.png",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -4731,6 +4819,7 @@
               "name": "Havana Club 3y",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a3404b4aa9b2a2dd2ff2b1117c5195c9.png",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -4784,6 +4873,7 @@
               "name": "Safari",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5cca72ce5f63a60df1725871d72171e7.png",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -4837,6 +4927,7 @@
               "name": "Tia Maria",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0c27b4143d7c0f6edc770ae5bc9bf352.png",
               "details": {
                 "posicao": 16,
                 "produtosSugeridos": [],
@@ -4890,6 +4981,7 @@
               "name": "Triple Seco",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a784106255a83d3121f9ce21e2125d8e.png",
               "details": {
                 "posicao": 17,
                 "produtosSugeridos": [],
@@ -4943,6 +5035,7 @@
               "name": "Havana Club 7y",
               "description": "",
               "price": 6.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c12b328c7218ee492313ea3e59ca0b8b.png",
               "details": {
                 "posicao": 18,
                 "produtosSugeridos": [],
@@ -4996,6 +5089,7 @@
               "name": "Captain Morgan",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/08ef21327e39689356ac72304f0a5911.png",
               "details": {
                 "posicao": 19,
                 "produtosSugeridos": [],
@@ -5049,6 +5143,7 @@
               "name": "Aperol",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/244a1f79dbb53da9f40658db88b7594a.png",
               "details": {
                 "posicao": 20,
                 "produtosSugeridos": [],
@@ -5102,6 +5197,7 @@
               "name": "TiJuana",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2aa089bab8e007d5d03155ca565332f2.png",
               "details": {
                 "posicao": 21,
                 "produtosSugeridos": [],
@@ -5155,6 +5251,7 @@
               "name": "Ginja",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/0c6bd1085dad979635cf3cee49724db1.png",
               "details": {
                 "posicao": 22,
                 "produtosSugeridos": [],
@@ -5208,6 +5305,7 @@
               "name": "Dose Jägermeister",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4eb6d90082cd04e48ef169284fc155ac.png",
               "details": {
                 "posicao": 23,
                 "produtosSugeridos": [],
@@ -5261,6 +5359,7 @@
               "name": "Disaronno",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/995531266f12f207a864d4d2fdff0dfe.png",
               "details": {
                 "posicao": 24,
                 "produtosSugeridos": [],
@@ -5314,6 +5413,7 @@
               "name": "El Dorado",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2869ef5dd34e13c66f222c429e9cf1d7.png",
               "details": {
                 "posicao": 25,
                 "produtosSugeridos": [],
@@ -5367,6 +5467,7 @@
               "name": "Campari",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b9c4fbb9a6de34c73e03213457f181b3.png",
               "details": {
                 "posicao": 26,
                 "produtosSugeridos": [],
@@ -5420,6 +5521,7 @@
               "name": "Macieira Cream",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3047d962ba39e7d6bbc260cb2d8b0ed4.png",
               "details": {
                 "posicao": 27,
                 "produtosSugeridos": [],
@@ -5473,6 +5575,7 @@
               "name": "Macieira Caramelo Salgado",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/086acc8ec7d0443c2a84f8e6f84bd726.png",
               "details": {
                 "posicao": 28,
                 "produtosSugeridos": [],
@@ -5532,6 +5635,7 @@
               "name": "Grey Goose",
               "description": "",
               "price": 9.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c12dfe0e93defc6d396c15d9071429d6.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -5585,6 +5689,7 @@
               "name": "Beluga",
               "description": "",
               "price": 8,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1b7b4be9bbae8d0ae68bd561967ec5f1.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -5638,6 +5743,7 @@
               "name": "Imperial",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/380c5a3eeec9c8b5c4939446c2dfb0e5.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -5691,6 +5797,7 @@
               "name": "Eristoff Branca",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/09db82eb0ce92a196fccb44da4230cfc.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -5744,6 +5851,7 @@
               "name": "Eristoff Preta",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/f56aaed2a2c4f2cc23679017abbe2610.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -5797,6 +5905,7 @@
               "name": "Eristoff Morango",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e7f7764bfc01d8f6aef3ac287d705ff0.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -5850,6 +5959,7 @@
               "name": "Eristoff Maracujá",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5ded481756a787745f090372ebf649b6.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -5903,6 +6013,7 @@
               "name": "Absolut",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a14ce3b166ed604fac696fe291f63cf2.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -5956,6 +6067,7 @@
               "name": "Eristoff Caramelo",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/86cd51e6449e966bfa1d20f7e7a01b62.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -6009,6 +6121,7 @@
               "name": "Eristoff Ginger",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/7c3efd584eb266bff1eda1dabdca1a48.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -6062,6 +6175,7 @@
               "name": "Belvedere",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1fc2d37805baaab12e4f8a337feb4763.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -6121,6 +6235,7 @@
               "name": "Bombay Dry",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/25e34d544a82f64de5e54acbae9ed675.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -6174,6 +6289,7 @@
               "name": "Bombay Sapphire",
               "description": "",
               "price": 7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/bf5a62515c95eb419c215c2cb245a0a3.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -6227,6 +6343,7 @@
               "name": "Bulldog",
               "description": "",
               "price": 8,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5e7e3b628ed5028c4246e90ab5640d15.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -6280,6 +6397,7 @@
               "name": "Tanqueray",
               "description": "",
               "price": 7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4d8633da687deaaab661b50b934ed925.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -6333,6 +6451,7 @@
               "name": "Gordon's",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/733739055f3a4d405b5f04ebf2fa8fdb.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -6386,6 +6505,7 @@
               "name": "Gordon's Pink",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/f8370013842322f5243215b61e18d82b.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -6439,6 +6559,7 @@
               "name": "Beefeater",
               "description": "",
               "price": 7,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/22022c851fddfeee95f7d8394cd81f82.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -6492,6 +6613,7 @@
               "name": "Hendrick's",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/52d8ad9213b2a8268233f0b224ef2e87.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -6545,6 +6667,7 @@
               "name": "Martin Miller's",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1221728dd3c2a56ea346d94e68f74983.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -6598,6 +6721,7 @@
               "name": "Mombasa",
               "description": "",
               "price": 8.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b74d97798fa4d4bedfd2af46a82028d9.png",
               "details": {
                 "posicao": 10,
                 "produtosSugeridos": [],
@@ -6651,6 +6775,7 @@
               "name": "Nordés",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/fe4a1c77b73bd84e486bfdedf476b1b9.png",
               "details": {
                 "posicao": 11,
                 "produtosSugeridos": [],
@@ -6704,6 +6829,7 @@
               "name": "Admus",
               "description": "",
               "price": 10.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/bed63c7a3d7046a9af472739e80041ac.png",
               "details": {
                 "posicao": 12,
                 "produtosSugeridos": [],
@@ -6757,6 +6883,7 @@
               "name": "Tropical",
               "description": "",
               "price": 8,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/242e1a1f8eab380d0b98465953266812.png",
               "details": {
                 "posicao": 13,
                 "produtosSugeridos": [],
@@ -6810,6 +6937,7 @@
               "name": "Gin Lata",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/7eec14dba40842c6949f563a7a3ab0fb.png",
               "details": {
                 "posicao": 14,
                 "produtosSugeridos": [],
@@ -6863,6 +6991,7 @@
               "name": "Gin Lata",
               "description": "",
               "price": 9,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/bdb0450314397d0699a7a724ace2f354.png",
               "details": {
                 "posicao": 15,
                 "produtosSugeridos": [],
@@ -6922,6 +7051,7 @@
               "name": "Brandy Mel",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/84b6d1f178bd08a9780fc8ebcc3cab27.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -6975,6 +7105,7 @@
               "name": "1920",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/2726ecb66ccda15c602fe3d9dbe02217.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -7028,6 +7159,7 @@
               "name": "Aldeia Velha",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/6c082ff210bb9dbc7b72bcd5d6d13421.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -7081,6 +7213,7 @@
               "name": "CRF",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c85c56ab0a7cb2f560be90087956cea3.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -7134,6 +7267,7 @@
               "name": "Croft",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/4f25ed62a0858b163b9a8507bedba64e.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -7187,6 +7321,7 @@
               "name": "Macieira",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b5b64a0f0b6f9267f985c23933bfbc6f.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -7246,6 +7381,7 @@
               "name": "Moët & Chandon",
               "description": "",
               "price": 65,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/d169bd4e3cd0d7b015dae31b0256e18d.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -7299,6 +7435,7 @@
               "name": "Favaios",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/751282fda4c0e2cbd799a531beecc480.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -7352,6 +7489,7 @@
               "name": "Moscatel de Setúbal",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/c47b7c20092cadd760d8ccce9a607ecd.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -7405,6 +7543,7 @@
               "name": "Vinho Porto Branco",
               "description": "",
               "price": 3.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/88853a33cc67c856c784826511281b58.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -7458,6 +7597,7 @@
               "name": "Vinho Porto Tinto",
               "description": "",
               "price": 3.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b08e662648604abf1be8e58161b28421.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -7511,6 +7651,7 @@
               "name": "Terras do Demo",
               "description": "",
               "price": 20,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1516917cae100de4f8a14859aa2727e0.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -7570,6 +7711,7 @@
               "name": "Caipirinha",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/265bf9d7a6159348fa934e2ea9200a30.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -7623,6 +7765,7 @@
               "name": "Caipiblack",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3a1dd5d137dee3a077ce666479e0b8e7.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -7676,6 +7819,7 @@
               "name": "Mojito",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/9d08f34f0d03113e3ca6e0fb564b9a9b.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -7729,6 +7873,7 @@
               "name": "Caipirão",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/a6027f8c19d2a98a35a5f6fc49cca9d1.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -7782,6 +7927,7 @@
               "name": "Cuba Livre",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/469c125bc8be5ff24b2ad89086a4d1bd.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -7835,6 +7981,7 @@
               "name": "Brisa c/Álcool",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/416a49638c71deee064f1e445e3e30ea.png",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -7888,6 +8035,7 @@
               "name": "Brisa s/Álcool",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/416a49638c71deee064f1e445e3e30ea.png",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],
@@ -7941,6 +8089,7 @@
               "name": "Mistela c/Álcool",
               "description": "",
               "price": 3,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e4ef949133f35161ebc7ae6f2d59fca6.png",
               "details": {
                 "posicao": 8,
                 "produtosSugeridos": [],
@@ -7994,6 +8143,7 @@
               "name": "Cocktail Garrafa",
               "description": "",
               "price": 4,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b8fa5d729dba741372921d77fe2a11db.png",
               "details": {
                 "posicao": 9,
                 "produtosSugeridos": [],
@@ -8059,6 +8209,7 @@
               "name": "Tosta Mista",
               "description": "",
               "price": 4.5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/b429e7b775cea5dfc17c27ecd34370d6.png",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -8112,6 +8263,7 @@
               "name": "Tosta Kebab",
               "description": "",
               "price": 5,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/59157ad887d685149a7070a0a928d9c0.png",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -8165,6 +8317,7 @@
               "name": "Hambúrguer",
               "description": "",
               "price": 6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/852bc2dc8cb3992584b099c63f11c815.png",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -8218,6 +8371,7 @@
               "name": "Tábua Mista",
               "description": "",
               "price": 15,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3b61573d0fe9e2fcee39c02afeb4366e.png",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -8271,6 +8425,7 @@
               "name": "Batata Frita",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/eac86e9f47daae60e2d3cf1d4734dd2f.png",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -8336,6 +8491,7 @@
               "name": "Twix",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/95151efc01ab2e6a486831bd59ad4210.jpeg",
               "details": {
                 "posicao": 1,
                 "produtosSugeridos": [],
@@ -8389,6 +8545,7 @@
               "name": "Maltesers",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/e8edd5ec5c2bbb32341bb2c9899fb4c7.jpeg",
               "details": {
                 "posicao": 2,
                 "produtosSugeridos": [],
@@ -8442,6 +8599,7 @@
               "name": "Kit Kat",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/3bf121fd787cf011b9b574dd16eabdb1.jpeg",
               "details": {
                 "posicao": 3,
                 "produtosSugeridos": [],
@@ -8495,6 +8653,7 @@
               "name": "Kinder Bueno",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/5ee26902d92e594a98d8b42490828c4a.jpeg",
               "details": {
                 "posicao": 4,
                 "produtosSugeridos": [],
@@ -8548,6 +8707,7 @@
               "name": "M&M",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/aca5ed8d0125a83b8845b8f389dd9e5a.jpeg",
               "details": {
                 "posicao": 5,
                 "produtosSugeridos": [],
@@ -8601,6 +8761,7 @@
               "name": "Snickers",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/9d7a2b05f3b8511ea3a74fd5318052ee.jpeg",
               "details": {
                 "posicao": 6,
                 "produtosSugeridos": [],
@@ -8654,6 +8815,7 @@
               "name": "Mars",
               "description": "",
               "price": 1.6,
+              "image": "https://cdn1.zonesoft.org/repo/images/f615a01011cc0446bea49527f1b4f67a/ementadigitalprodutos/1ffaedbf29ed1d886dd5170aadb10106.jpeg",
               "details": {
                 "posicao": 7,
                 "produtosSugeridos": [],

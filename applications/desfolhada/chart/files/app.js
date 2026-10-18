@@ -19,7 +19,6 @@
   const layout = document.querySelector(".menu-layout");
   const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
   const integers = new Intl.NumberFormat("pt-PT");
-  const mobileLayout = window.matchMedia("(max-width: 899px)");
   const blockTags = new Set(["P", "DIV", "LI", "UL", "OL", "H1", "H2", "H3", "H4", "H5", "H6", "SECTION", "ARTICLE", "BLOCKQUOTE", "TABLE", "TR"]);
   const priceKeys = new Set(["preco", "precovenda", "price", "pvp", "precounitario", "precoextra", "precobase"]);
   const primaryPriceKeys = new Set(["preco", "precovenda", "price", "pvp"]);
@@ -28,16 +27,6 @@
   const optionListKeys = new Set(["opcoes", "options", "products", "produtos"]);
   const customerDetailKeys = new Set([...nameKeys, ...descriptionKeys, ...priceKeys, "opcoes", "options", "complementares", "niveismenu", "products", "produtos", "mincomplementos", "maxcomplementos", "minopcoes", "maxopcoes", "obrigatorio", "required", "quantidade"]);
   const quantityDetailKeys = new Set(["mincomplementos", "maxcomplementos", "minopcoes", "maxopcoes", "quantidade"]);
-  const sourceInfoKeys = ["pessoas", "tempo", "calorias"];
-  const positiveSourceFlags = new Map([
-    ["sal", "Sem sal"],
-    ["vegetariano", "Vegetariano"],
-    ["lactose", "Sem lactose"],
-    ["gluten", "Sem glúten"],
-    ["dieta", "Dieta"],
-    ["alergenios", "Alergénios"],
-    ["picante", "Picante"]
-  ]);
   const detailLabels = new Map([
     ["descricao", "Descrição"],
     ["description", "Descrição"],
@@ -62,18 +51,15 @@
     ["produtos", "Produtos"],
     ["maxopcoes", "Máximo de opções"],
     ["minopcoes", "Mínimo de opções"],
-    ["quantidade", "Quantidade"],
-    ["informacoesorigem", "Informações da ementa original"],
-    ["pessoas", "Dose"],
-    ["tempo", "Tempo estimado"],
-    ["calorias", "Calorias"],
+    ["quantidade", "Quantidade"]
   ]);
 
   let sectionRecords = [];
   let categoryRecords = [];
   let itemRecords = [];
-  let currentCategory = null;
-  let animationFrame = null;
+  let selectedCategory = null;
+  let allCategoriesButton = null;
+  let allCategoriesCount = null;
   let loading = false;
   let loaded = false;
 
@@ -176,15 +162,6 @@
       if (quantityDetailKeys.has(name) && !(Number(content) > 0)) continue;
       result[key] = customerDetails(content);
     }
-    const sourceInformation = {};
-    for (const key of sourceInfoKeys) {
-      if (value[key] !== null && value[key] !== undefined && Number.isFinite(Number(value[key])) && Number(value[key]) > 0) sourceInformation[key] = value[key];
-    }
-    for (const [key, label] of positiveSourceFlags) {
-      const flag = value[key];
-      if (flag === true || typeof flag === "number" && flag > 0) sourceInformation[label] = "Assinalado na ementa original";
-    }
-    if (Object.keys(sourceInformation).length) result.informacoesOrigem = sourceInformation;
     return result;
   }
 
@@ -199,9 +176,6 @@
     if (value === null || value === undefined || value === "") return "";
     const name = fieldKey(key);
     if (typeof value === "boolean") return value ? "Sim" : "Não";
-    if (name === "calorias") return `${integers.format(Number(value))} kcal`;
-    if (name === "tempo") return `${integers.format(Number(value))} ${Number(value) === 1 ? "minuto" : "minutos"}`;
-    if (name === "pessoas") return `${integers.format(Number(value))} ${Number(value) === 1 ? "pessoa" : "pessoas"}`;
     if (name === "obrigatorio" || name === "required") {
       const flag = normalize(value);
       if (["1", "true", "s", "sim", "yes"].includes(flag)) return "Sim";
@@ -295,18 +269,14 @@
     const imageUrl = httpUrl(item.image, true);
     if (imageUrl) {
       const image = element("img", "item-image");
-      image.src = imageUrl;
       image.alt = name;
       image.loading = "lazy";
       image.decoding = "async";
       image.referrerPolicy = "no-referrer";
       image.width = 144;
       image.height = 144;
-      article.classList.add("has-image");
-      image.addEventListener("error", () => {
-        image.remove();
-        article.classList.remove("has-image");
-      }, { once: true });
+      image.addEventListener("error", () => image.remove(), { once: true });
+      image.src = imageUrl;
       article.append(image);
     }
     const copy = element("div", "item-copy");
@@ -318,7 +288,7 @@
     const detailPresentation = renderDetail(detailData, "", { name, description, price: item.price });
     if (detailPresentation) {
       const details = element("details", "item-details");
-      const summary = element("summary", "", "Opções e informações");
+      const summary = element("summary", "", "Ver opções");
       const content = element("div", "detail-content");
       content.append(detailPresentation);
       details.append(summary, content);
@@ -337,7 +307,16 @@
     sectionRecords = [];
     categoryRecords = [];
     itemRecords = [];
-    currentCategory = null;
+    selectedCategory = null;
+    allCategoriesButton = element("button", "category-filter is-all");
+    allCategoriesButton.id = "all-categories";
+    allCategoriesButton.type = "button";
+    allCategoriesButton.setAttribute("aria-controls", "menu-sections");
+    allCategoriesCount = element("span", "category-count");
+    allCategoriesCount.setAttribute("aria-hidden", "true");
+    allCategoriesButton.append(element("span", "category-filter-name", "Todos"), allCategoriesCount);
+    allCategoriesButton.addEventListener("click", () => selectCategory(null));
+    navFragment.append(allCategoriesButton);
 
     menu.sections.forEach((sourceSection, sectionIndex) => {
       const sectionName = plainText(sourceSection.name);
@@ -354,14 +333,13 @@
       section.append(heading);
       const navLabel = element("p", "nav-section-label", sectionName);
       navFragment.append(navLabel);
-      const sectionRecord = { element: section, count: sectionCount, navLabel, categories: [] };
+      const sectionRecord = { element: section, count: sectionCount, categories: [] };
 
       sourceSection.categories.forEach((sourceCategory, categoryIndex) => {
         const categoryName = plainText(sourceCategory.name);
         const categoryId = `category-${sectionIndex + 1}-${categoryIndex + 1}`;
         const category = element("section", "menu-category");
         category.id = categoryId;
-        category.tabIndex = -1;
         category.setAttribute("aria-labelledby", `${categoryId}-title`);
         if (sourceCategory.id !== undefined) category.dataset.sourceId = String(sourceCategory.id);
         const categoryHeading = element("header", "category-heading");
@@ -381,15 +359,16 @@
         category.append(itemList);
         section.append(category);
 
-        const link = element("a", "category-link");
-        link.href = `#${categoryId}`;
-        if (sourceCategory.id !== undefined) link.dataset.sourceId = String(sourceCategory.id);
+        const button = element("button", "category-filter");
+        button.type = "button";
+        button.setAttribute("aria-controls", "menu-sections");
+        if (sourceCategory.id !== undefined) button.dataset.sourceId = String(sourceCategory.id);
         const navCount = element("span", "category-count");
         navCount.setAttribute("aria-hidden", "true");
-        link.append(element("span", "category-link-name", categoryName), navCount);
-        navFragment.append(link);
-        const categoryRecord = { element: category, link, name: categoryName, count: categoryCount, navCount, items };
-        link.addEventListener("click", () => setCurrentCategory(categoryRecord));
+        button.append(element("span", "category-filter-name", categoryName), navCount);
+        navFragment.append(button);
+        const categoryRecord = { element: category, button, name: categoryName, count: categoryCount, navCount, items };
+        button.addEventListener("click", () => selectCategory(categoryRecord));
         sectionRecord.categories.push(categoryRecord);
         categoryRecords.push(categoryRecord);
       });
@@ -437,29 +416,11 @@
     resetSearch.hidden = !reset;
   }
 
-  function setCurrentCategory(category) {
-    if (currentCategory === category) return;
-    if (currentCategory) currentCategory.link.removeAttribute("aria-current");
-    currentCategory = category;
-    if (category) category.link.setAttribute("aria-current", "location");
-  }
-
-  function updateCurrentCategory() {
-    animationFrame = null;
-    if (!loaded || sidebar.hidden) return;
-    const offset = mobileLayout.matches ? Math.max(24, sidebar.getBoundingClientRect().bottom + 16) : 40;
-    let candidate = null;
-    for (const category of categoryRecords) {
-      if (category.element.hidden) continue;
-      if (!candidate) candidate = category;
-      if (category.element.getBoundingClientRect().top <= offset) candidate = category;
-      else break;
-    }
-    setCurrentCategory(candidate);
-  }
-
-  function scheduleCurrentCategory() {
-    if (animationFrame === null) animationFrame = window.requestAnimationFrame(updateCurrentCategory);
+  function selectCategory(category) {
+    if (selectedCategory === category) return;
+    selectedCategory = category;
+    applyFilter();
+    if (menuContent.getBoundingClientRect().top < 0) menuContent.scrollIntoView({ block: "start" });
   }
 
   function applyFilter() {
@@ -467,55 +428,70 @@
     const query = normalize(search.value);
     const terms = query ? query.split(" ") : [];
     let total = 0;
+    let allMatches = 0;
     let visibleCategories = 0;
     clearSearch.hidden = search.value.length === 0;
 
     for (const section of sectionRecords) {
       let sectionTotal = 0;
       for (const category of section.categories) {
+        const selected = selectedCategory === null || selectedCategory === category;
         let matches = 0;
         for (const item of category.items) {
-          const visible = terms.every((term) => item.searchText.includes(term));
-          item.element.hidden = !visible;
-          if (visible) matches += 1;
+          const matchesQuery = terms.every((term) => item.searchText.includes(term));
+          item.element.hidden = !selected || !matchesQuery;
+          if (matchesQuery) matches += 1;
         }
-        category.element.hidden = Boolean(query) && matches === 0;
-        category.link.hidden = category.element.hidden;
-        category.count.textContent = countLabel(matches, "artigo", "artigos");
+        const visibleCount = selected ? matches : 0;
+        category.element.hidden = visibleCount === 0;
+        category.count.textContent = countLabel(visibleCount, "artigo", "artigos");
         category.navCount.textContent = integers.format(matches);
-        category.link.setAttribute("aria-label", `${category.name}, ${countLabel(matches, "artigo", "artigos")}`);
-        if (!category.element.hidden) visibleCategories += 1;
-        sectionTotal += matches;
+        category.button.setAttribute("aria-pressed", String(selectedCategory === category));
+        category.button.setAttribute("aria-label", `${category.name}, ${countLabel(matches, "artigo", "artigos")}`);
+        if (visibleCount > 0) visibleCategories += 1;
+        sectionTotal += visibleCount;
+        allMatches += matches;
       }
-      section.element.hidden = Boolean(query) && sectionTotal === 0;
-      section.navLabel.hidden = section.element.hidden;
+      section.element.hidden = sectionTotal === 0;
       section.count.textContent = countLabel(sectionTotal, "artigo", "artigos");
       total += sectionTotal;
     }
 
-    sidebar.hidden = visibleCategories === 0 || total === 0;
+    allCategoriesButton.setAttribute("aria-pressed", String(selectedCategory === null));
+    allCategoriesButton.setAttribute("aria-label", `Todos, ${countLabel(allMatches, "artigo", "artigos")}`);
+    allCategoriesCount.textContent = integers.format(allMatches);
+    sidebar.hidden = categoryRecords.length === 0;
     layout.classList.toggle("has-navigation", !sidebar.hidden);
     menuSections.hidden = total === 0;
-    if (query) {
+    if (selectedCategory) {
+      searchSummary.textContent = `${query ? countLabel(total, "resultado", "resultados") : countLabel(total, "artigo", "artigos")} em ${selectedCategory.name}`;
+    } else if (query) {
       searchSummary.textContent = `${countLabel(total, "resultado", "resultados")} em ${countLabel(visibleCategories, "categoria", "categorias")}`;
     } else {
-      searchSummary.textContent = `${countLabel(itemRecords.length, "artigo", "artigos")} · ${countLabel(categoryRecords.length, "categoria", "categorias")}`;
+      searchSummary.textContent = `${countLabel(total, "artigo", "artigos")} · ${countLabel(categoryRecords.length, "categoria", "categorias")}`;
     }
     if (itemRecords.length === 0) {
       showState("empty", "Por agora", "Ainda não há artigos para mostrar.", "A cópia da ementa não contém artigos disponíveis. Consulte a ementa original ou fale com o estabelecimento.");
     } else if (total === 0) {
-      showState("empty", "Vamos tentar de outra forma", "Não encontrámos o que procura.", `Não há resultados para “${search.value.trim()}”. Experimente outra palavra ou volte à ementa completa.`, false, true);
+      const scope = selectedCategory ? ` em ${selectedCategory.name}` : "";
+      const explanation = query
+        ? `Não há resultados para “${search.value.trim()}”${scope}. Experimente outra palavra ou escolha outra categoria.`
+        : `Não há artigos disponíveis${scope}. Escolha outra categoria ou volte à ementa completa.`;
+      showState("empty", "Vamos tentar de outra forma", "Não encontrámos o que procura.", explanation, false, true);
     } else {
       menuStatus.hidden = true;
     }
-    if (sidebar.hidden) setCurrentCategory(null);
-    else scheduleCurrentCategory();
   }
 
   function clearQuery() {
     search.value = "";
     applyFilter();
     search.focus();
+  }
+
+  function resetFilters() {
+    selectedCategory = null;
+    clearQuery();
   }
 
   async function loadMenu() {
@@ -547,15 +523,6 @@
       search.disabled = false;
       menuContent.setAttribute("aria-busy", "false");
       applyFilter();
-      if (window.location.hash) {
-        let target;
-        try {
-          target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-        } catch {
-          target = null;
-        }
-        if (target && target.classList.contains("menu-category") && !target.hidden) target.scrollIntoView();
-      }
     } catch (error) {
       menuContent.setAttribute("aria-busy", "false");
       searchSummary.textContent = "Ementa indisponível de momento.";
@@ -581,10 +548,8 @@
     }
   });
   clearSearch.addEventListener("click", clearQuery);
-  resetSearch.addEventListener("click", clearQuery);
+  resetSearch.addEventListener("click", resetFilters);
   retryMenu.addEventListener("click", loadMenu);
-  window.addEventListener("scroll", scheduleCurrentCategory, { passive: true });
-  window.addEventListener("resize", scheduleCurrentCategory, { passive: true });
 
   loadMenu();
 })();
