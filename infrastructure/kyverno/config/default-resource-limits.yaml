@@ -1,0 +1,35 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: default-resource-limits
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: add-default-resources
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaceSelector:
+                matchLabels:
+                  policy.fraguinha.com/defaults: enabled
+      mutate:
+        patchStrategicMerge:
+          spec:
+            initContainers:
+              - (name): "*"
+                resources:
+                  requests:
+                    +(cpu): 10m
+                    +(memory): 64Mi
+                  limits:
+                    +(memory): 1Gi
+            containers:
+              - (name): "*"
+                resources:
+                  requests:
+                    +(cpu): 10m
+                    +(memory): 64Mi
+                  limits:
+                    +(memory): 1Gi

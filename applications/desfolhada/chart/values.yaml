@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: nginxinc/nginx-unprivileged
+  tag: 1.30-alpine
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+ingress:
+  enabled: true
+  host: desfolhada.fraguinha.com
+  className: traefik
+  clusterIssuer: letsencrypt
+  externalDnsTarget: ""
+  tls:
+    enabled: true
+    secretName: desfolhada-tls

@@ -1,0 +1,22 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: pi
+  namespace: ssh
+spec:
+  endpoints:
+    - dnsName: pi.fraguinha.com
+      recordType: A
+      recordTTL: 300
+      targets:
+        - ${PUBLIC_IP_FRAGUINHA}
+    - dnsName: pi.livinvicta.com
+      recordType: A
+      recordTTL: 300
+      targets:
+        - ${PUBLIC_IP_LIVINVICTA}
+    - dnsName: pi.a50passos.com
+      recordType: A
+      recordTTL: 300
+      targets:
+        - ${PUBLIC_IP_A50PASSOS}

@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: actions-runner
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: actions-runner
+  targetNamespace: actions-runner
+  storageNamespace: actions-runner
+  serviceAccountName: helm-infrastructure
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: gha-runner-scale-set-controller
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner
+  values:
+    flags:
+      logLevel: info
+      logFormat: json
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi

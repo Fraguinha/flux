@@ -1,0 +1,73 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: flux-system
+spec:
+  interval: 1m
+  releaseName: home-assistant
+  targetNamespace: home-assistant
+  storageNamespace: home-assistant
+  serviceAccountName: helm-home-assistant
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: home-assistant-git
+      reconcileStrategy: Revision
+  values:
+    image:
+      pullPolicy: Always
+    ingress:
+      annotations:
+        tailscale.com/proxy-class: home-assistant-flux
+    proxyClass:
+      name: home-assistant-flux
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: tailscale.com
+              version: v1alpha1
+              kind: ProxyClass
+              name: home-assistant-flux
+            patch: |-
+              $patch: delete
+              apiVersion: tailscale.com/v1alpha1
+              kind: ProxyClass
+              metadata:
+                name: home-assistant-flux
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: home-assistant
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: home-assistant
+                annotations:
+                  keel.sh/policy: force
+                  keel.sh/match-tag: "true"
+                  keel.sh/trigger: poll
+                  keel.sh/initContainers: "true"
+              spec:
+                template:
+                  spec:
+                    initContainers:
+                      - name: enable-bluetooth
+                        imagePullPolicy: Always
+                    containers:
+                      - name: matter-server
+                        imagePullPolicy: Always
