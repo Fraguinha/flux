@@ -1,0 +1,37 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: desfolhada
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if or .Values.ingress.clusterIssuer .Values.ingress.externalDnsTarget }}
+  annotations:
+    {{- if .Values.ingress.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer | quote }}
+    {{- end }}
+    {{- if .Values.ingress.externalDnsTarget }}
+    external-dns.kubernetes.io/target: {{ .Values.ingress.externalDnsTarget | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: 80
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - secretName: {{ .Values.ingress.tls.secretName | quote }}
+      hosts:
+        - {{ .Values.ingress.host | quote }}
+  {{- end }}
+{{- end }}

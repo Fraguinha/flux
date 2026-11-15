@@ -1,0 +1,54 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: shell
+  namespace: flux-system
+spec:
+  interval: 10m
+  releaseName: shell
+  targetNamespace: shell
+  storageNamespace: shell
+  serviceAccountName: helm-shell
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: shell-git
+      reconcileStrategy: Revision
+  values:
+    rbac:
+      create: false
+      serviceAccountName: shell-admin
+    ingress:
+      externalDnsTarget: ${PUBLIC_IPS}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: shell-herdr-fraguinha
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: shell-herdr-fraguinha
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: herdr
+                        securityContext:
+                          appArmorProfile:
+                            type: Unconfined

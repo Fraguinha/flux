@@ -1,0 +1,37 @@
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: github
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - ping
+    - push
+  secretRef:
+    name: flux-webhook-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: flux-system
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: a50passos-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: bestcarprice-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: home-assistant-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: livinvicta-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: payments-production-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: payments-testing-git
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: shell-git

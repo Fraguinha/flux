@@ -1,0 +1,23 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: app-buffy
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 30m
+  path: ./applications/buffy
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: infra-kyverno-config
+    - name: infra-longhorn-config
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: external-dns-targets
+        optional: true

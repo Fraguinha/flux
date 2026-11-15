@@ -1,0 +1,94 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: runner-build-resources
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers: []
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: actions-runner
+    objectSelector:
+      matchExpressions:
+        - key: actions.github.com/scale-set-name
+          operator: In
+          values:
+            - shell-arm64
+            - payments-arm64
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+          - pods/ephemeralcontainers
+  matchConditions:
+    - name: is-arm64-runner
+      expression: |
+        object.metadata.?labels[?"actions.github.com/scale-set-name"].orValue("") in
+          ["shell-arm64", "payments-arm64"]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.filter(container, container.name == "dind").map(container,
+                Object.spec.containers{
+                  name: container.name,
+                  resources: Object.spec.containers.resources{
+                    requests: {"cpu": "500m", "memory": "1Gi"},
+                    limits: {"cpu": "1500m", "memory": "3Gi"}
+                  }
+                }
+              ),
+              ?initContainers: has(object.spec.initContainers) ?
+                optional.of(object.spec.initContainers.filter(container, container.name == "dind").map(container,
+                  Object.spec.initContainers{
+                    name: container.name,
+                    resources: Object.spec.initContainers.resources{
+                      requests: {"cpu": "500m", "memory": "1Gi"},
+                      limits: {"cpu": "1500m", "memory": "3Gi"}
+                    }
+                  }
+                )) : optional.none()
+            }
+          }
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: |
+          (object.spec.containers.exists(container, container.name == "dind") &&
+            object.spec.containers[0].name != "dind" ?
+            [
+              JSONPatch{
+                op: "replace",
+                path: "/spec/containers",
+                value: object.spec.containers.filter(container, container.name == "dind") +
+                  object.spec.containers.filter(container, container.name != "dind")
+              }
+            ] : []) +
+          (object.spec.?initContainers.orValue([]).exists(container, container.name == "dind") &&
+            object.spec.initContainers[0].name != "dind" ?
+            [
+              JSONPatch{
+                op: "replace",
+                path: "/spec/initContainers",
+                value: object.spec.initContainers.filter(container, container.name == "dind") +
+                  object.spec.initContainers.filter(container, container.name != "dind")
+              }
+            ] : [])

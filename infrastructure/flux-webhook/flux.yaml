@@ -1,0 +1,25 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-flux-webhook
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 10m
+  path: ./infrastructure/flux-webhook
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: infra-cert-manager-config
+    - name: infra-external-dns
+    - name: infra-onepassword-config
+    - name: infra-traefik
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: external-dns-targets
+        optional: true

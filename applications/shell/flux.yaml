@@ -1,0 +1,25 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: app-shell
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 30m
+  path: ./applications/shell
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: infra-cert-manager-config
+    - name: infra-kyverno-config
+    - name: infra-longhorn-config
+    - name: infra-onepassword-config
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: external-dns-targets
+        optional: true

@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: llm
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llm
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: llm
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/bootstrap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      runtimeClassName: {{ .Values.runtimeClassName }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: model-download
+          image: {{ .Values.downloader.image | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - /opt/llm/download.sh
+          env:
+            - name: MODEL_URL
+              value: {{ .Values.model.url | quote }}
+            - name: MODEL_SHA256
+              value: {{ .Values.model.sha256 | quote }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /opt/llm
+              readOnly: true
+            - name: ollama
+              mountPath: /root/.ollama
+      containers:
+        - name: ollama
+          image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - /opt/llm/bootstrap.sh
+          env:
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:11434"
+            - name: OLLAMA_MODELS
+              value: /root/.ollama/models
+            - name: OLLAMA_NO_CLOUD
+              value: "1"
+            - name: OLLAMA_CONTEXT_LENGTH
+              value: {{ .Values.server.contextLength | quote }}
+            - name: OLLAMA_NUM_PARALLEL
+              value: {{ .Values.server.numParallel | quote }}
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
+            - name: OLLAMA_KEEP_ALIVE
+              value: {{ .Values.server.keepAlive | quote }}
+            - name: OLLAMA_FLASH_ATTENTION
+              value: {{ .Values.server.flashAttention | quote }}
+            - name: OLLAMA_KV_CACHE_TYPE
+              value: {{ .Values.server.kvCacheType | quote }}
+            - name: LLAMA_ARG_KV_OFFLOAD
+              value: {{ .Values.server.kvOffload | quote }}
+            - name: LLAMA_ARG_FIT_TARGET
+              value: {{ .Values.server.fitTargetMiB | quote }}
+            - name: LLAMA_ARG_CACHE_RAM
+              value: {{ .Values.server.promptCacheMiB | quote }}
+            - name: LLAMA_ARG_CTX_CHECKPOINTS
+              value: {{ .Values.server.contextCheckpoints | quote }}
+            - name: CUDA_CACHE_PATH
+              value: /root/.ollama/.nv/ComputeCache
+            - name: CUDA_CACHE_MAXSIZE
+              value: "4294967296"
+          ports:
+            - name: http
+              containerPort: 11434
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /api/version
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - {{ printf "[ -e /tmp/llm-ready ] && exec /bin/ollama show %s >/dev/null" .Values.model.alias | quote }}
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/version
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /opt/llm
+              readOnly: true
+            - name: ollama
+              mountPath: /root/.ollama
+      volumes:
+        - name: bootstrap
+          configMap:
+            name: {{ .Release.Name }}-ollama-bootstrap
+        - name: ollama
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-ollama

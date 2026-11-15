@@ -1,0 +1,68 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bestcarprice
+  namespace: flux-system
+spec:
+  interval: 10m
+  releaseName: bestcarprice
+  targetNamespace: bestcarprice
+  storageNamespace: bestcarprice
+  serviceAccountName: helm-bestcarprice
+  install:
+    remediation:
+      retries: 3
+    timeout: 30m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 30m
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: bestcarprice-git
+      reconcileStrategy: Revision
+  values:
+    components:
+      frontend:
+        resources:
+          limits:
+            memory: 128Mi
+      backend:
+        resources:
+          requests:
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+    ingress:
+      externalDnsTarget: ${PUBLIC_IPS}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: backend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: backend
+              spec:
+                template:
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/hostname
+                                  operator: NotIn
+                                  values:
+                                    - carolion
+                                    - cloud-1
+                                    - cloud-2
