@@ -1,0 +1,10 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Value
+metadata:
+  name: default-resource-limits
+namespaceSelector:
+  - name: a50passos
+    labels:
+      policy.fraguinha.com/defaults: enabled
+  - name: default
+    labels: {}

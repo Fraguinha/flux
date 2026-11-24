@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: first-missing
+  namespace: a50passos
+spec:
+  containers:
+    - name: missing
+      image: busybox:1.37
+    - name: explicit
+      image: busybox:1.37
+      resources:
+        requests:
+          cpu: 25m
+          memory: 128Mi
+          ephemeral-storage: 512Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
+  initContainers:
+    - name: init-missing
+      image: busybox:1.37
+    - name: init-explicit
+      image: busybox:1.37
+      restartPolicy: Always
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: first-present
+  namespace: a50passos
+spec:
+  containers:
+    - name: explicit
+      image: busybox:1.37
+      resources:
+        requests:
+          cpu: 25m
+          memory: 128Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
+    - name: missing
+      image: busybox:1.37
+  initContainers:
+    - name: init-explicit
+      image: busybox:1.37
+      restartPolicy: Always
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
+    - name: init-missing
+      image: busybox:1.37
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nonmatching-namespace
+  namespace: default
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37

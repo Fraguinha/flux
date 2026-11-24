@@ -1,58 +1,75 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: default-topology-spread
 spec:
   failurePolicy: Fail
-  rules:
-    - name: spread-by-component
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaceSelector:
-                matchLabels:
-                  policy.fraguinha.com/topology-spread: enabled
-              selector:
-                matchExpressions:
-                  - key: app.kubernetes.io/instance
-                    operator: Exists
-                  - key: app.kubernetes.io/component
-                    operator: Exists
-      mutate:
-        patchStrategicMerge:
-          spec:
-            affinity:
-              +(podAntiAffinity):
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  - topologyKey: kubernetes.io/hostname
-                    labelSelector:
-                      matchLabels:
-                        app.kubernetes.io/instance: '{{ request.object.metadata.labels."app.kubernetes.io/instance" }}'
-                        app.kubernetes.io/component: '{{ request.object.metadata.labels."app.kubernetes.io/component" }}'
-    - name: spread-by-instance
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaceSelector:
-                matchLabels:
-                  policy.fraguinha.com/topology-spread: enabled
-              selector:
-                matchExpressions:
-                  - key: app.kubernetes.io/instance
-                    operator: Exists
-                  - key: app.kubernetes.io/component
-                    operator: DoesNotExist
-      mutate:
-        patchStrategicMerge:
-          spec:
-            affinity:
-              +(podAntiAffinity):
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  - topologyKey: kubernetes.io/hostname
-                    labelSelector:
-                      matchLabels:
-                        app.kubernetes.io/instance: '{{ request.object.metadata.labels."app.kubernetes.io/instance" }}'
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers: []
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        policy.fraguinha.com/topology-spread: enabled
+    objectSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/instance
+          operator: Exists
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+          - pods/ephemeralcontainers
+  matchConditions:
+    - name: has-instance-label
+      expression: has(object.metadata.labels) && "app.kubernetes.io/instance" in object.metadata.labels
+    - name: missing-pod-anti-affinity
+      expression: "!has(object.spec.affinity) || !has(object.spec.affinity.podAntiAffinity)"
+  variables:
+    - name: matchLabels
+      expression: |
+        "app.kubernetes.io/component" in object.metadata.labels ?
+          {
+            "app.kubernetes.io/instance": object.metadata.labels["app.kubernetes.io/instance"],
+            "app.kubernetes.io/component": object.metadata.labels["app.kubernetes.io/component"]
+          } :
+          {
+            "app.kubernetes.io/instance": object.metadata.labels["app.kubernetes.io/instance"]
+          }
+    - name: podAntiAffinity
+      expression: |
+        {
+          "requiredDuringSchedulingIgnoredDuringExecution": [
+            {
+              "topologyKey": dyn("kubernetes.io/hostname"),
+              "labelSelector": dyn({"matchLabels": variables.matchLabels})
+            }
+          ]
+        }
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: |
+          [
+            JSONPatch{
+              op: "add",
+              path: has(object.spec.affinity) ? "/spec/affinity/podAntiAffinity" : "/spec/affinity",
+              value: has(object.spec.affinity) ?
+                dyn(variables.podAntiAffinity) :
+                dyn({"podAntiAffinity": variables.podAntiAffinity})
+            }
+          ]
