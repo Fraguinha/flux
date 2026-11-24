@@ -1,35 +1,216 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: default-resource-limits
 spec:
   failurePolicy: Fail
-  rules:
-    - name: add-default-resources
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaceSelector:
-                matchLabels:
-                  policy.fraguinha.com/defaults: enabled
-      mutate:
-        patchStrategicMerge:
-          spec:
-            initContainers:
-              - (name): "*"
-                resources:
-                  requests:
-                    +(cpu): 10m
-                    +(memory): 64Mi
-                  limits:
-                    +(memory): 1Gi
-            containers:
-              - (name): "*"
-                resources:
-                  requests:
-                    +(cpu): 10m
-                    +(memory): 64Mi
-                  limits:
-                    +(memory): 1Gi
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers:
+        - daemonsets
+        - deployments
+        - jobs
+        - replicasets
+        - statefulsets
+        - cronjobs
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        policy.fraguinha.com/defaults: enabled
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(container,
+                Object.spec.containers{
+                  name: container.name,
+                  resources: Object.spec.containers.resources{
+                    requests: {
+                      "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                      "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                    },
+                    limits: {
+                      "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                    }
+                  }
+                }
+              ),
+              ?initContainers: has(object.spec.initContainers) ?
+                optional.of(object.spec.initContainers.map(container,
+                  Object.spec.initContainers{
+                    name: container.name,
+                    resources: Object.spec.initContainers.resources{
+                      requests: {
+                        "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                        "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                      },
+                      limits: {
+                        "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                      }
+                    }
+                  }
+                )) : optional.none()
+            }
+          }
+---
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: default-resource-limits-replicationcontrollers
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers: []
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        policy.fraguinha.com/defaults: enabled
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - replicationcontrollers
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              template: Object.spec.template{
+                spec: Object.spec.template.spec{
+                  containers: object.spec.template.spec.containers.map(container,
+                    Object.spec.template.spec.containers{
+                      name: container.name,
+                      resources: Object.spec.template.spec.containers.resources{
+                        requests: {
+                          "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                          "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                        },
+                        limits: {
+                          "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                        }
+                      }
+                    }
+                  ),
+                  ?initContainers: has(object.spec.template.spec.initContainers) ?
+                    optional.of(object.spec.template.spec.initContainers.map(container,
+                      Object.spec.template.spec.initContainers{
+                        name: container.name,
+                        resources: Object.spec.template.spec.initContainers.resources{
+                          requests: {
+                            "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                            "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                          },
+                          limits: {
+                            "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                          }
+                        }
+                      }
+                    )) : optional.none()
+                }
+              }
+            }
+          }
+---
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: default-resource-limits-ephemeralcontainers
+spec:
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers: []
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        policy.fraguinha.com/defaults: enabled
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods/ephemeralcontainers
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(container,
+                Object.spec.containers{
+                  name: container.name,
+                  resources: Object.spec.containers.resources{
+                    requests: {
+                      "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                      "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                    },
+                    limits: {
+                      "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                    }
+                  }
+                }
+              ),
+              ?initContainers: has(object.spec.initContainers) ?
+                optional.of(object.spec.initContainers.map(container,
+                  Object.spec.initContainers{
+                    name: container.name,
+                    resources: Object.spec.initContainers.resources{
+                      requests: {
+                        "cpu": container.?resources.?requests[?"cpu"].orValue("10m"),
+                        "memory": container.?resources.?requests[?"memory"].orValue("64Mi")
+                      },
+                      limits: {
+                        "memory": container.?resources.?limits[?"memory"].orValue("1Gi")
+                      }
+                    }
+                  }
+                )) : optional.none()
+            }
+          }

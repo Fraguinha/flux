@@ -1,21 +1,50 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: default-ingress-dns-ttl
 spec:
   failurePolicy: Fail
-  rules:
-    - name: add-ttl
-      match:
-        any:
-          - resources:
-              kinds:
-                - Ingress
-              namespaceSelector:
-                matchLabels:
-                  policy.fraguinha.com/defaults: enabled
-      mutate:
-        patchStrategicMerge:
-          metadata:
-            annotations:
-              +(external-dns.kubernetes.io/ttl): "300"
+  reinvocationPolicy: IfNeeded
+  evaluation:
+    admission:
+      enabled: true
+    background:
+      enabled: false
+    mutateExisting:
+      enabled: false
+  autogen:
+    podControllers:
+      controllers: []
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        policy.fraguinha.com/defaults: enabled
+    resourceRules:
+      - apiGroups:
+          - networking.k8s.io
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - ingresses
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: |
+          has(object.metadata.annotations) ?
+            ("external-dns.kubernetes.io/ttl" in object.metadata.annotations ? [] : [
+              JSONPatch{
+                op: "add",
+                path: "/metadata/annotations/external-dns.kubernetes.io~1ttl",
+                value: "300"
+              }
+            ]) :
+            [
+              JSONPatch{
+                op: "add",
+                path: "/metadata/annotations",
+                value: {"external-dns.kubernetes.io/ttl": "300"}
+              }
+            ]
