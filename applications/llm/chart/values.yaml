@@ -4,13 +4,13 @@ image:
   pullPolicy: IfNotPresent
 
 model:
-  source: huihui_ai/qwen3.5-abliterated:27b
-  manifestDigest: e9ff39f1ea000e961c6e8be8165592dedc0d91eaf450169d55369d54cc86da0c
-  layerDigest: 10aa4f639021bf57bee8f43057539343d6d62c79ee0b67c1f24f2c07cea81795
-  alias: qwen3.5-27b-uncensored
+  source: huihui_ai/qwen3.8-abliterated:27b
+  manifestDigest: bdc5e13cd1645bc409e95a7d9e864dc3ce3e5fe5beeb24a43c193e8041edd3e0
+  layerDigest: 6c2c13cef89238c3604d756b07b3ef5fafebbd61095feb8553ff449c95e4c1c6
+  alias: qwen3.8-27b-uncensored
 
 server:
-  contextLength: 32768
+  contextLength: 16384
   numParallel: 1
   keepAlive: "-1"
   flashAttention: true
