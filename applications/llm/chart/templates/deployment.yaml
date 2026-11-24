@@ -27,6 +27,32 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: model-download
+          image: {{ .Values.downloader.image | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - /opt/llm/download.sh
+          env:
+            - name: MODEL_URL
+              value: {{ .Values.model.url | quote }}
+            - name: MODEL_SHA256
+              value: {{ .Values.model.sha256 | quote }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /opt/llm
+              readOnly: true
+            - name: ollama
+              mountPath: /root/.ollama
       containers:
         - name: ollama
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
@@ -34,7 +60,6 @@ spec:
           command:
             - /bin/bash
             - /opt/llm/bootstrap.sh
-            - serve
           env:
             - name: OLLAMA_HOST
               value: "0.0.0.0:11434"
@@ -54,6 +79,10 @@ spec:
               value: {{ .Values.server.flashAttention | quote }}
             - name: OLLAMA_KV_CACHE_TYPE
               value: {{ .Values.server.kvCacheType | quote }}
+            - name: LLAMA_ARG_KV_OFFLOAD
+              value: {{ .Values.server.kvOffload | quote }}
+            - name: LLAMA_ARG_FIT_TARGET
+              value: {{ .Values.server.fitTargetMiB | quote }}
             - name: LLAMA_ARG_CACHE_RAM
               value: {{ .Values.server.promptCacheMiB | quote }}
             - name: LLAMA_ARG_CTX_CHECKPOINTS

@@ -4,18 +4,32 @@ image:
   pullPolicy: IfNotPresent
 
 model:
-  source: huihui_ai/qwen3.8-abliterated:27b
-  manifestDigest: bdc5e13cd1645bc409e95a7d9e864dc3ce3e5fe5beeb24a43c193e8041edd3e0
-  layerDigest: 6c2c13cef89238c3604d756b07b3ef5fafebbd61095feb8553ff449c95e4c1c6
+  url: https://huggingface.co/huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF/resolve/c4b90228246aef7ecc6cb2be9d80575a911a0f3a/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf
+  sha256: eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19
   alias: qwen3.8-27b-uncensored
+  renderer: qwen3.8
+  parser: qwen3.5
+  parameters:
+    draft_num_predict: 4
+    min_p: 0
+    presence_penalty: 0
+    repeat_penalty: 1
+    temperature: 1
+    top_k: 20
+    top_p: 0.95
+
+downloader:
+  image: curlimages/curl:8.23.0
 
 server:
-  contextLength: 16384
+  contextLength: 65536
   numParallel: 1
   keepAlive: "-1"
   flashAttention: true
   kvCacheType: q8_0
-  promptCacheMiB: 1024
+  kvOffload: false
+  fitTargetMiB: 256
+  promptCacheMiB: 2560
   contextCheckpoints: 3
 
 runtimeClassName: nvidia

@@ -10,23 +10,46 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
+  download.sh: |
+    set -eu
+    : "${MODEL_URL:?}" "${MODEL_SHA256:?}"
+    blob="/root/.ollama/models/blobs/sha256-$MODEL_SHA256"
+    dir=/root/.ollama/import
+    file="$dir/$MODEL_SHA256.gguf"
+    if [ -e "$blob" ]; then
+      echo "model blob $MODEL_SHA256 already present"
+      exit 0
+    fi
+    mkdir -p "$dir"
+    if [ -f "$file" ] && echo "$MODEL_SHA256  $file" | sha256sum -c -s; then
+      echo "model file $MODEL_SHA256 already downloaded"
+      exit 0
+    fi
+    rm -f "$file"
+    curl -fL --retry 10 --retry-all-errors --retry-delay 5 -C - -o "$file.partial" "$MODEL_URL"
+    if ! echo "$MODEL_SHA256  $file.partial" | sha256sum -c -s; then
+      rm -f "$file.partial"
+      echo "downloaded model does not match sha256 $MODEL_SHA256" >&2
+      exit 1
+    fi
+    mv "$file.partial" "$file"
+    echo "model file $MODEL_SHA256 downloaded and verified"
   bootstrap.sh: |
     set -euo pipefail
 
-    mode=${1:-}
-    case "$mode" in
-      serve | prefetch) ;;
-      *)
-        echo "usage: bootstrap.sh serve|prefetch" >&2
-        exit 2
-        ;;
-    esac
-
     : "${OLLAMA_MODELS:?OLLAMA_MODELS must be set}"
-    source_model={{ .Values.model.source | quote }}
     alias_model={{ printf "%s:latest" .Values.model.alias | quote }}
-    manifest_digest={{ .Values.model.manifestDigest | quote }}
-    layer_digest={{ .Values.model.layerDigest | quote }}
+    model_sha256={{ .Values.model.sha256 | quote }}
+    model_blob="$OLLAMA_MODELS/blobs/sha256-$model_sha256"
+    model_import="/root/.ollama/import/$model_sha256.gguf"
+    directives=(
+      'TEMPLATE {{ "{{ .Prompt }}" }}'
+      {{ printf "RENDERER %s" .Values.model.renderer | squote }}
+      {{ printf "PARSER %s" .Values.model.parser | squote }}
+      {{- range $name, $value := .Values.model.parameters }}
+      {{ printf "PARAMETER %s %v" $name $value | squote }}
+      {{- end }}
+    )
 
     /bin/ollama serve &
     server_pid=$!
@@ -71,10 +94,13 @@ data:
       task_pid=
     }
 
-    model_layer="FROM $OLLAMA_MODELS/blobs/sha256-$layer_digest"
-
     alias_pinned() {
-      [ "$(/bin/ollama show --modelfile "$alias_model" 2>/dev/null | grep '^FROM ')" = "$model_layer" ]
+      local current line
+      current=$(/bin/ollama show --modelfile "$alias_model" 2>/dev/null) || return 1
+      [ "$(grep '^FROM ' <<<"$current")" = "FROM $model_blob" ] || return 1
+      for line in "${directives[@]}"; do
+        grep -Fxq "$line" <<<"$current" || return 1
+      done
     }
 
     until /bin/ollama list >/dev/null 2>&1; do
@@ -86,30 +112,23 @@ data:
     done
 
     if ! alias_pinned; then
-      if [ "$(model_field "$(api GET /api/tags)" "$source_model" digest)" != "$manifest_digest" ]; then
-        run_task /bin/ollama pull "$source_model"
-        pulled_digest=$(model_field "$(api GET /api/tags)" "$source_model" digest)
-        if [ "$pulled_digest" != "$manifest_digest" ]; then
-          echo "$source_model manifest ${pulled_digest:-missing} does not match pinned $manifest_digest" >&2
-          exit 1
-        fi
+      if [ -f "$model_import" ]; then
+        model_source=$model_import
+      elif [ -f "$model_blob" ]; then
+        model_source=$model_blob
+      else
+        echo "model file $model_sha256 is missing" >&2
+        exit 1
       fi
-      /bin/ollama show --modelfile "$source_model" |
-        awk -v keep="$model_layer" '/^FROM / && $0 != keep { next } { print }' >/tmp/llm-modelfile
+      { printf 'FROM %s\n' "$model_source"; printf '%s\n' "${directives[@]}"; } >/tmp/llm-modelfile
       run_task /bin/ollama create "$alias_model" -f /tmp/llm-modelfile
       if ! alias_pinned; then
-        echo "$alias_model does not resolve to model layer $layer_digest" >&2
+        echo "$alias_model does not resolve to model $model_sha256 with the configured settings" >&2
         exit 1
       fi
     fi
-    if [ -n "$(model_field "$(api GET /api/tags)" "$source_model" digest)" ]; then
-      /bin/ollama rm "$source_model"
-    fi
-    echo "$alias_model pinned to model layer $layer_digest"
-
-    if [ "$mode" = prefetch ]; then
-      exit 0
-    fi
+    rm -f "$model_import"
+    echo "$alias_model pinned to model $model_sha256"
 
     run_task api POST /api/generate "{\"model\":\"$alias_model\",\"keep_alive\":-1,\"stream\":false}" >/tmp/llm-warm
     if ! grep -F '"done":true' /tmp/llm-warm >/dev/null; then
