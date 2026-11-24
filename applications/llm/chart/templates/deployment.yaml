@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: llm
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llm
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: llm
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      automountServiceAccountToken: false
+      runtimeClassName: {{ .Values.runtimeClassName }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: model
+          image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              cd /models
+              find . -maxdepth 1 -type f ! -name "$MODEL_FILE" -delete
+              if [ ! -f "$MODEL_FILE" ]; then
+                echo "downloading $MODEL_URL"
+                curl -fsSL --retry 10 --retry-all-errors -o "$MODEL_FILE.partial" "$MODEL_URL"
+                echo "$MODEL_SHA256  $MODEL_FILE.partial" | sha256sum -c -
+                mv "$MODEL_FILE.partial" "$MODEL_FILE"
+              fi
+          env:
+            - name: MODEL_FILE
+              value: {{ .Values.model.file | quote }}
+            - name: MODEL_URL
+              value: {{ printf "https://huggingface.co/%s/resolve/%s/%s" .Values.model.repository .Values.model.revision .Values.model.file | quote }}
+            - name: MODEL_SHA256
+              value: {{ .Values.model.sha256 | quote }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      containers:
+        - name: server
+          image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --model
+            - {{ printf "/models/%s" .Values.model.file | quote }}
+            - --alias
+            - {{ .Values.model.alias | quote }}
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8080"
+            - --n-gpu-layers
+            - all
+            - --flash-attn
+            - "on"
+            - --ctx-size
+            - {{ .Values.server.contextSize | quote }}
+            - --cache-type-k
+            - {{ .Values.server.cacheType | quote }}
+            - --cache-type-v
+            - {{ .Values.server.cacheType | quote }}
+            - --parallel
+            - "1"
+            - --cache-ram
+            - {{ .Values.server.cacheRamMiB | quote }}
+            - --temp
+            - {{ .Values.server.sampling.temperature | quote }}
+            - --top-p
+            - {{ .Values.server.sampling.topP | quote }}
+            - --top-k
+            - {{ .Values.server.sampling.topK | quote }}
+            - --min-p
+            - {{ .Values.server.sampling.minP | quote }}
+          env:
+            - name: CUDA_CACHE_PATH
+              value: /models/.nv/ComputeCache
+            - name: CUDA_CACHE_MAXSIZE
+              value: "4294967296"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 180
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-models

@@ -1,0 +1,36 @@
+image:
+  repository: ghcr.io/ggml-org/llama.cpp
+  tag: server-cuda12-b12679
+  pullPolicy: IfNotPresent
+
+model:
+  repository: unsloth/Qwen3.5-9B-GGUF
+  revision: 3885219b6810b007914f3a7950a8d1b469d598a5
+  file: Qwen3.5-9B-UD-Q4_K_XL.gguf
+  sha256: 6f5d30666c2d8ae16a306e616d95341dcf3cc46810df84d7e6f5a7d1e4c1b293
+  alias: qwen3.5-9b
+
+server:
+  contextSize: 65536
+  cacheType: q8_0
+  cacheRamMiB: 2048
+  sampling:
+    temperature: 0.6
+    topP: 0.95
+    topK: 20
+    minP: 0
+
+runtimeClassName: nvidia
+
+nodeSelector: {}
+
+storage:
+  size: 16Gi
+  storageClassName: local-path
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 3Gi
+  limits:
+    memory: 6Gi

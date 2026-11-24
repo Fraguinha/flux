@@ -8,6 +8,7 @@ resources:
   - desfolhada/flux.yaml
   - home-assistant/flux.yaml
   - livinvicta/flux.yaml
+  - llm/flux.yaml
   - minecraft/flux.yaml
   - payments/flux.yaml
   - payments-testing/flux.yaml

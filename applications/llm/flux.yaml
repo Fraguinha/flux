@@ -1,0 +1,22 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: app-llm
+  namespace: flux-system
+spec:
+  interval: 1m
+  timeout: 30m
+  path: ./applications/llm
+  prune: true
+  wait: true
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: llm
+      namespace: flux-system
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: infra-kyverno-config
+    - name: infra-local-path
