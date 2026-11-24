@@ -54,6 +54,10 @@ spec:
               value: {{ .Values.server.flashAttention | quote }}
             - name: OLLAMA_KV_CACHE_TYPE
               value: {{ .Values.server.kvCacheType | quote }}
+            - name: LLAMA_ARG_CACHE_RAM
+              value: {{ .Values.server.promptCacheMiB | quote }}
+            - name: LLAMA_ARG_CTX_CHECKPOINTS
+              value: {{ .Values.server.contextCheckpoints | quote }}
             - name: CUDA_CACHE_PATH
               value: /root/.ollama/.nv/ComputeCache
             - name: CUDA_CACHE_MAXSIZE

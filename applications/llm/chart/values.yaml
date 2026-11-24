@@ -15,6 +15,8 @@ server:
   keepAlive: "-1"
   flashAttention: true
   kvCacheType: q8_0
+  promptCacheMiB: 1024
+  contextCheckpoints: 3
 
 runtimeClassName: nvidia
 
