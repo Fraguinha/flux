@@ -71,10 +71,11 @@ data:
       task_pid=
     }
 
+    model_layer="FROM $OLLAMA_MODELS/blobs/sha256-$layer_digest"
+
     alias_pinned() {
-      [ "$(model_field "$(api GET /api/tags)" "$alias_model" digest)" = "$manifest_digest" ] &&
-        /bin/ollama show --modelfile "$alias_model" |
-        grep -Fx "FROM $OLLAMA_MODELS/blobs/sha256-$layer_digest" >/dev/null
+      [ "$(model_field "$(api GET /api/tags)" "$source_model" digest)" = "$manifest_digest" ] &&
+        [ "$(/bin/ollama show --modelfile "$alias_model" | grep '^FROM ')" = "$model_layer" ]
     }
 
     until /bin/ollama list >/dev/null 2>&1; do
@@ -94,7 +95,9 @@ data:
           exit 1
         fi
       fi
-      /bin/ollama cp "$source_model" "$alias_model"
+      /bin/ollama show --modelfile "$source_model" |
+        awk -v keep="$model_layer" '/^FROM / && $0 != keep { next } { print }' >/tmp/llm-modelfile
+      run_task /bin/ollama create "$alias_model" -f /tmp/llm-modelfile
       if ! alias_pinned; then
         echo "$alias_model does not resolve to manifest $manifest_digest with model layer $layer_digest" >&2
         exit 1
