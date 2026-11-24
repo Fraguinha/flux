@@ -29,5 +29,8 @@ spec:
         kind: HelmRepository
         name: kyverno
   values:
+    global:
+      image:
+        registry: ghcr.io
     admissionController:
       replicas: 2
