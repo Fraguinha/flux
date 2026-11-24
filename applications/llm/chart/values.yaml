@@ -4,13 +4,13 @@ image:
   pullPolicy: IfNotPresent
 
 model:
-  url: https://huggingface.co/huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF/resolve/c4b90228246aef7ecc6cb2be9d80575a911a0f3a/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf
-  sha256: eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19
+  url: https://huggingface.co/huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF/resolve/c4b90228246aef7ecc6cb2be9d80575a911a0f3a/Huihui-Qwen3.8-27B-abliterated-UD-Q3_K_XL.gguf
+  sha256: c6e144d78595c4656946187c2cee42f9062b3b4fa9874bc1be3e9263396253da
   alias: qwen3.8-27b-uncensored
   renderer: qwen3.8
   parser: qwen3.5
   parameters:
-    draft_num_predict: 4
+    draft_num_predict: 0
     min_p: 0
     presence_penalty: 0
     repeat_penalty: 1
@@ -28,7 +28,7 @@ server:
   flashAttention: true
   kvCacheType: q8_0
   kvOffload: false
-  fitTargetMiB: 256
+  fitTargetMiB: 768
   promptCacheMiB: 2560
   contextCheckpoints: 3
 

@@ -26,7 +26,7 @@ data:
       exit 0
     fi
     rm -f "$file"
-    curl -fL --retry 10 --retry-all-errors --retry-delay 5 -C - -o "$file.partial" "$MODEL_URL"
+    curl -fL --no-progress-meter --retry 10 --retry-all-errors --retry-delay 5 -C - -o "$file.partial" "$MODEL_URL"
     if ! echo "$MODEL_SHA256  $file.partial" | sha256sum -c -s; then
       rm -f "$file.partial"
       echo "downloaded model does not match sha256 $MODEL_SHA256" >&2
