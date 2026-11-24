@@ -37,6 +37,4 @@ spec:
       timeZone: Europe/Lisbon
       lockReleaseDelay: 15m
       drainTimeout: 15m
-      blockingPodSelector:
-        - app.kubernetes.io/name=minecraft
       concurrency: 1
