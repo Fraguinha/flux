@@ -35,3 +35,30 @@ spec:
             memory: 512Mi
     ingress:
       externalDnsTarget: ${PUBLIC_IPS}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: backend
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: backend
+              spec:
+                template:
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/hostname
+                                  operator: NotIn
+                                  values:
+                                    - carolion
+                                    - cloud-1
+                                    - cloud-2

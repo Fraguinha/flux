@@ -1,36 +1,33 @@
 image:
-  repository: ghcr.io/ggml-org/llama.cpp
-  tag: server-cuda12-b12679
+  repository: ollama/ollama
+  tag: 0.40.3
   pullPolicy: IfNotPresent
 
 model:
-  repository: unsloth/Qwen3.5-9B-GGUF
-  revision: 3885219b6810b007914f3a7950a8d1b469d598a5
-  file: Qwen3.5-9B-UD-Q4_K_XL.gguf
-  sha256: 6f5d30666c2d8ae16a306e616d95341dcf3cc46810df84d7e6f5a7d1e4c1b293
-  alias: qwen3.5-9b
+  source: huihui_ai/qwen3.5-abliterated:27b
+  manifestDigest: e9ff39f1ea000e961c6e8be8165592dedc0d91eaf450169d55369d54cc86da0c
+  layerDigest: 10aa4f639021bf57bee8f43057539343d6d62c79ee0b67c1f24f2c07cea81795
+  alias: qwen3.5-27b-uncensored
 
 server:
-  contextSize: 65536
-  cacheType: q8_0
-  cacheRamMiB: 2048
-  sampling:
-    temperature: 0.6
-    topP: 0.95
-    topK: 20
-    minP: 0
+  contextLength: 32768
+  numParallel: 1
+  keepAlive: "-1"
+  flashAttention: true
+  kvCacheType: q8_0
 
 runtimeClassName: nvidia
 
 nodeSelector: {}
 
 storage:
-  size: 16Gi
+  size: 64Gi
   storageClassName: local-path
 
 resources:
   requests:
-    cpu: 500m
-    memory: 3Gi
+    cpu: "6"
+    memory: 12Gi
   limits:
-    memory: 6Gi
+    cpu: "8"
+    memory: 13Gi

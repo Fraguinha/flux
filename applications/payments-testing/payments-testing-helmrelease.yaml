@@ -85,3 +85,30 @@ spec:
         - payments-testing.a50passos.com
       tls:
         secretName: payments-testing-tls-secret
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: payments
+            patch: |-
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: payments
+              spec:
+                template:
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/hostname
+                                  operator: NotIn
+                                  values:
+                                    - carolion
+                                    - cloud-1
+                                    - cloud-2
